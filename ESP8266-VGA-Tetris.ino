@@ -23,112 +23,11 @@
 // http://forum.arduino.cc/index.php?topic=328631.0
 
 #include <math.h>
-#define FNT_NANOFONT_HEIGHT 6
-#define FNT_NANOFONT_SYMBOLS_COUNT 95
-#include <VGAXUtils.h>
-
-VGAX vga;
-VGAXUtils vgaU;
-
-//data size=570 bytes
-const unsigned char fnt_nanofont_data[FNT_NANOFONT_SYMBOLS_COUNT][1+FNT_NANOFONT_HEIGHT] PROGMEM={
-{ 1, 128, 128, 128, 0, 128, 0, }, //glyph '!' code=0
-{ 3, 160, 160, 0, 0, 0, 0, }, //glyph '"' code=1
-//{ 5, 80, 248, 80, 248, 80, 0, },  //glyph '#' code=2
-{ 5, 248, 248, 248, 248, 248, 0, },  //glyph '#' code=2 - full rectangle
-{ 5, 120, 160, 112, 40, 240, 0, },  //glyph '$' code=3
-{ 5, 136, 16, 32, 64, 136, 0, },  //glyph '%' code=4
-{ 5, 96, 144, 104, 144, 104, 0, },  //glyph '&' code=5
-{ 2, 128, 64, 0, 0, 0, 0, },  //glyph ''' code=6
-{ 2, 64, 128, 128, 128, 64, 0, }, //glyph '(' code=7
-{ 2, 128, 64, 64, 64, 128, 0, },  //glyph ')' code=8
-{ 3, 0, 160, 64, 160, 0, 0, },  //glyph '*' code=9
-{ 3, 0, 64, 224, 64, 0, 0, }, //glyph '+' code=10
-{ 2, 0, 0, 0, 0, 128, 64, },  //glyph ',' code=11
-{ 3, 0, 0, 224, 0, 0, 0, }, //glyph '-' code=12
-{ 1, 0, 0, 0, 0, 128, 0, }, //glyph '.' code=13
-{ 5, 8, 16, 32, 64, 128, 0, },  //glyph '/' code=14
-{ 4, 96, 144, 144, 144, 96, 0, }, //glyph '0' code=15
-{ 3, 64, 192, 64, 64, 224, 0, },  //glyph '1' code=16
-{ 4, 224, 16, 96, 128, 240, 0, }, //glyph '2' code=17
-{ 4, 224, 16, 96, 16, 224, 0, },  //glyph '3' code=18
-{ 4, 144, 144, 240, 16, 16, 0, }, //glyph '4' code=19
-{ 4, 240, 128, 224, 16, 224, 0, },  //glyph '5' code=20
-{ 4, 96, 128, 224, 144, 96, 0, }, //glyph '6' code=21
-{ 4, 240, 16, 32, 64, 64, 0, }, //glyph '7' code=22
-{ 4, 96, 144, 96, 144, 96, 0, },  //glyph '8' code=23
-{ 4, 96, 144, 112, 16, 96, 0, },  //glyph '9' code=24
-{ 1, 0, 128, 0, 128, 0, 0, }, //glyph ':' code=25
-{ 2, 0, 128, 0, 0, 128, 64, },  //glyph ';' code=26
-{ 3, 32, 64, 128, 64, 32, 0, }, //glyph '<' code=27
-{ 3, 0, 224, 0, 224, 0, 0, }, //glyph '=' code=28
-{ 3, 128, 64, 32, 64, 128, 0, },  //glyph '>' code=29
-{ 4, 224, 16, 96, 0, 64, 0, },  //glyph '?' code=30
-{ 4, 96, 144, 176, 128, 112, 0, },  //glyph '@' code=31
-{ 4, 96, 144, 240, 144, 144, 0, },  //glyph 'A' code=32
-{ 4, 224, 144, 224, 144, 224, 0, }, //glyph 'B' code=33
-{ 4, 112, 128, 128, 128, 112, 0, }, //glyph 'C' code=34
-{ 4, 224, 144, 144, 144, 224, 0, }, //glyph 'D' code=35
-{ 4, 240, 128, 224, 128, 240, 0, }, //glyph 'E' code=36
-{ 4, 240, 128, 224, 128, 128, 0, }, //glyph 'F' code=37
-{ 4, 112, 128, 176, 144, 112, 0, }, //glyph 'G' code=38
-{ 4, 144, 144, 240, 144, 144, 0, }, //glyph 'H' code=39
-{ 3, 224, 64, 64, 64, 224, 0, },  //glyph 'I' code=40
-{ 4, 240, 16, 16, 144, 96, 0, },  //glyph 'J' code=41
-{ 4, 144, 160, 192, 160, 144, 0, }, //glyph 'K' code=42
-{ 4, 128, 128, 128, 128, 240, 0, }, //glyph 'L' code=43
-{ 5, 136, 216, 168, 136, 136, 0, }, //glyph 'M' code=44
-{ 4, 144, 208, 176, 144, 144, 0, }, //glyph 'N' code=45
-{ 4, 96, 144, 144, 144, 96, 0, }, //glyph 'O' code=46
-{ 4, 224, 144, 224, 128, 128, 0, }, //glyph 'P' code=47
-{ 4, 96, 144, 144, 144, 96, 16, },  //glyph 'Q' code=48
-{ 4, 224, 144, 224, 160, 144, 0, }, //glyph 'R' code=49
-{ 4, 112, 128, 96, 16, 224, 0, }, //glyph 'S' code=50
-{ 3, 224, 64, 64, 64, 64, 0, }, //glyph 'T' code=51
-{ 4, 144, 144, 144, 144, 96, 0, },  //glyph 'U' code=52
-{ 3, 160, 160, 160, 160, 64, 0, },  //glyph 'V' code=53
-{ 5, 136, 168, 168, 168, 80, 0, },  //glyph 'W' code=54
-{ 4, 144, 144, 96, 144, 144, 0, },  //glyph 'X' code=55
-{ 3, 160, 160, 64, 64, 64, 0, },  //glyph 'Y' code=56
-{ 4, 240, 16, 96, 128, 240, 0, }, //glyph 'Z' code=57
-{ 2, 192, 128, 128, 128, 192, 0, }, //glyph '[' code=58
-{ 5, 128, 64, 32, 16, 8, 0, },  //glyph '\' code=59
-{ 2, 192, 64, 64, 64, 192, 0, },  //glyph ']' code=60
-{ 5, 32, 80, 136, 0, 0, 0, }, //glyph '^' code=61
-{ 4, 0, 0, 0, 0, 240, 0, }, //glyph '_' code=62
-{ 2, 128, 64, 0, 0, 0, 0, },  //glyph '`' code=63
-{ 3, 0, 224, 32, 224, 224, 0, },  //glyph 'a' code=64
-{ 3, 128, 224, 160, 160, 224, 0, }, //glyph 'b' code=65
-{ 3, 0, 224, 128, 128, 224, 0, }, //glyph 'c' code=66
-{ 3, 32, 224, 160, 160, 224, 0, },  //glyph 'd' code=67
-{ 3, 0, 224, 224, 128, 224, 0, }, //glyph 'e' code=68
-{ 2, 64, 128, 192, 128, 128, 0, },  //glyph 'f' code=69
-{ 3, 0, 224, 160, 224, 32, 224, },  //glyph 'g' code=70
-{ 3, 128, 224, 160, 160, 160, 0, }, //glyph 'h' code=71
-{ 1, 128, 0, 128, 128, 128, 0, }, //glyph 'i' code=72
-{ 2, 0, 192, 64, 64, 64, 128, },  //glyph 'j' code=73
-{ 3, 128, 160, 192, 160, 160, 0, }, //glyph 'k' code=74
-{ 1, 128, 128, 128, 128, 128, 0, }, //glyph 'l' code=75
-{ 5, 0, 248, 168, 168, 168, 0, }, //glyph 'm' code=76
-{ 3, 0, 224, 160, 160, 160, 0, }, //glyph 'n' code=77
-{ 3, 0, 224, 160, 160, 224, 0, }, //glyph 'o' code=78
-{ 3, 0, 224, 160, 160, 224, 128, }, //glyph 'p' code=79
-{ 3, 0, 224, 160, 160, 224, 32, },  //glyph 'q' code=80
-{ 3, 0, 224, 128, 128, 128, 0, }, //glyph 'r' code=81
-{ 2, 0, 192, 128, 64, 192, 0, },  //glyph 's' code=82
-{ 3, 64, 224, 64, 64, 64, 0, }, //glyph 't' code=83
-{ 3, 0, 160, 160, 160, 224, 0, }, //glyph 'u' code=84
-{ 3, 0, 160, 160, 160, 64, 0, },  //glyph 'v' code=85
-{ 5, 0, 168, 168, 168, 80, 0, },  //glyph 'w' code=86
-{ 3, 0, 160, 64, 160, 160, 0, },  //glyph 'x' code=87
-{ 3, 0, 160, 160, 224, 32, 224, },  //glyph 'y' code=88
-{ 2, 0, 192, 64, 128, 192, 0, },  //glyph 'z' code=89
-{ 3, 96, 64, 192, 64, 96, 0, }, //glyph '{' code=90
-{ 1, 128, 128, 128, 128, 128, 0, }, //glyph '|' code=91
-{ 3, 192, 64, 96, 64, 192, 0, },  //glyph '}' code=92
-{ 3, 96, 192, 0, 0, 0, 0, },  //glyph '~' code=93
-{ 4, 48, 64, 224, 64, 240, 0, },  //glyph '£' code=94
-};
+#include <ESPVGAX.h>
+#define ESPVGAX_SCALEX 4
+#define ESPVGAX_SCALEY 8
+#include "ESPVGAXUtils.h"
+ESPVGAXUtils vgaU;
 
 static const char str0[] PROGMEM="0"; 
 static const char str1[] PROGMEM="1"; 
@@ -146,25 +45,6 @@ static const char str12[] PROGMEM="by Roberto Melzi";
 static const char str13[] PROGMEM="Game"; 
 static const char str14[] PROGMEM="Over!"; 
 
-void setup() {
-  //Serial.begin(9600);
-  vga.begin();
-  randomSeed(analogRead(5)); 
-}
-
-// ************** button pin definitions *****************************
-byte button1 = 12; //left
-byte button2 = 11; //rotate
-byte button3 = 10; //right
-byte button4 = 13; //down fast 
-//********************************************************************
-
-boolean button = 0;
-boolean button_1 = 0;
-boolean button_2 = 0;
-boolean button_3 = 0;
-boolean button_4 = 0;
-boolean button_5 = 0;
 int block[4][2]={{0,0},{0,0},{0,0},{0,0}};
 int blockExt[4][2]={{0,0},{0,0},{0,0},{0,0}};
 int blockOld[4][2]={{0,0},{0,0},{0,0},{0,0}};
@@ -190,69 +70,21 @@ int k = 0;
 int a = 40;
 int b = 10; 
 int counterMenu = 0; 
-unsigned long time = 0;
+unsigned long ticks = 0;
 int fast = 14; //14; 
 
-void processInputs() { //button_5 = digitalRead(A5); can be added for clockwise rotation 
-  if(button_1 == 1) {
-     button_2 = digitalRead(button2);
-     button_3 = digitalRead(button3); 
-     button_4 = digitalRead(button4);
-     button_1 = 0;
-     vga.delay(25);
-  }
-  else{
-     if(button_2 == 1) {
-        button_1 = digitalRead(button1);
-        button_3 = digitalRead(button3); 
-        button_4 = digitalRead(button4);
-        button_2 = 0;
-        vga.delay(25);
-     }
-     else{
-        if(button_3 == 1) {
-           button_1 = digitalRead(button1);
-           button_2 = digitalRead(button2); 
-           button_4 = digitalRead(button4);
-           button_3 = 0;
-           vga.delay(25);
-        }
-        else{
-           if(button_4 == 1) {
-              button_1 = digitalRead(button1);
-              button_2 = digitalRead(button2); 
-              button_3 = digitalRead(button3);                                          
-              button_4 = 0;
-              //vga.delay(25);                                                                    
-           }
-           else{
-              button_1 = digitalRead(button1); 
-              button_2 = digitalRead(button2);
-              button_3 = digitalRead(button3); 
-              button_4 = digitalRead(button4);
-           }
-        }
-     }
-  }
-  button = button_2 || button_4; 
+void setupTetris() {
+  noLoop = -1;
+  score = 0;
+  fast = 14;
+  ticks = 0;
 }
 
-void clearInputs() {
-  button_1 = 0; 
-  button_2 = 0;
-  button_3 = 0; 
-  button_4 = 0;
-  button = 0; 
+ICACHE_RAM_ATTR void processInputsTetris() {
+  vga.delay(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1 ? 100 : 25);
 }
 
 void drawMenu() {
-  while (button_1 == 0 && button_2 == 0 && button_3 == 0 && button_4 == 0) {
-     processInputs(); 
-     vgaPrint(str11, 26, 16, (counterMenu%3) + 1);
-     vgaPrint(str12, 28, 28, (counterMenu%3) + 1);
-     vga.delay(1000);
-     counterMenu++; 
-  }
   vga.clear(0);
   drawGameScreen();
   drawScore(score);
@@ -284,8 +116,7 @@ void drawBorder() {
 // --------------------- this is for the beginning game window ------------------------ 
 void drawStartScreen() {
    drawBorder(); 
-   drawGameScreen(); 
-   button = 0;
+   drawGameScreen();
    vga.delay(200);
 } 
 
@@ -468,7 +299,7 @@ void drawBlockTmp(){
 void checkBlock(){ 
   busy = 0;  
   for (int i = 0; i < 4; i++){
-     busy = busy + vga.getpixel(blockTr[i][0], blockTr[i][1]) + vga.getpixel(blockTr[i][0] + 2, blockTr[i][1]);
+     busy = busy + vgaU.getpixel(blockTr[i][0], blockTr[i][1]) + vgaU.getpixel(blockTr[i][0] + 2, blockTr[i][1]);
   }
 }
 
@@ -486,18 +317,17 @@ void replaceBlock(){
         noLoop = 0; 
         noDelete = 1; 
         if (y < 8) {
-           gameOver();
+           gameOverTetris();
         }
      }
      vga.delay(1);
 }
 
-void gameOver(){ // ------------------------------------------- Game Over ! --------------------------------------------------
+void gameOverTetris(){ // ------------------------------------------- Game Over ! --------------------------------------------------
    noLoop = -1; 
    score = 0;
    fast = 14;
-   clearInputs(); 
-   time = 0; 
+   ticks = 0; 
    vgaPrint(str13, 92, 30, 1);
    vgaPrint(str14, 92, 38, 1);
    vga.delay(300);
@@ -505,11 +335,10 @@ void gameOver(){ // ------------------------------------------- Game Over ! ----
    vgaTone(330, 200);
    vgaTone(165, 200); 
    vgaTone(82, 200);
-   while (button_1 == 0 && button_2 == 0 && button_3 == 0 && button_4 == 0) {
-      processInputs(); 
+   while (buttonOneStatus == 0 && buttonTwoStatus == 0 && buttonThreeStatus == 0) {
+      processInputs(); processInputsTetris();
       vga.delay(200);
    }
-   clearInputs();  
    vga.clear(0);  
 }
 
@@ -567,7 +396,7 @@ void checkBlockRotation(){
 void checkForFullLine() { // --------------------- check if the line is full and must be deleted --------------
    for (int i = 0; i < 4; i++){
       for (int j = 45; j < 76; j += 3) {
-         if (vga.getpixel(j, blockTmp[i][1]) >0){k++; }
+         if (vgaU.getpixel(j, blockTmp[i][1]) >0){k++; }
       }
       if (k == 11) { // ---- line is full and must be deleted ----------------------------------------------------------
          vgaU.draw_line(45, blockTmp[i][1], 78, blockTmp[i][1], 0); 
@@ -587,7 +416,7 @@ void checkForFullLine() { // --------------------- check if the line is full and
     for (int i = 0; i < yCounter; i++){   // ----------- block translation to lower position -------------- 
       for (int y = yLine[i] - 2; y > 0; y = y - 2) {
          for (int x = 45; x < 76; x += 3) {
-            colorOld = vga.getpixel(x, y); 
+            colorOld = vgaU.getpixel(x, y); 
             if (colorOld > 0) {
                vgaU.draw_line(x, y , x + 3, y , 0);
                vgaU.draw_line(x, y + 1, x + 3, y + 1, 0);
@@ -609,16 +438,12 @@ void checkForFullLine() { // --------------------- check if the line is full and
 //--------------------- This is the main loop of the game ---------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-void loop() {
-  processInputs(); 
+ICACHE_RAM_ATTR void loopTetris() {
+  processInputsTetris();
   if (noLoop < 1){ // --------------- to generate new Tetraminos --------------------------------
      blockN = blockNext; 
      if (noLoop == -1 ) { // -------------- only at the game beginning  -------------------------
         drawMenu(); 
-        while (button_1 == 0 && button_2 == 0 && button_3 == 0 && button_4 == 0) {
-           blockN = 2 + int(random(6)); // -------------- tetraminos "O" is excluded -----------------
-           processInputs(); 
-        }
      }
      drawGameScreen();
      drawScore(score);
@@ -628,24 +453,23 @@ void loop() {
      blockDef(blockN);
      x = 57; 
      y = 5; 
-     button_1 = 1; 
      noLoop = 1; 
   }
-  if (button_2 == 1){ // ------------------------ rotation -------------------------
+  if (buttonThreeStatus == 1){ // ------------------------ rotation -------------------------
      //if (button_5 == 1){clock = -1;}
-     if (button_2 == 1){clock = 1;}
+     if (buttonThreeStatus == 1){clock = 1;}
      delBlock();
      blockRotation(clock); 
      checkBlockRotation(); 
   }
-  if (button_1 == 1 || button_3 == 1){ // ------- translation ----------------------
-     if (button_1 == 1){delta = 3;}
-     if (button_3 == 1){delta = -3;}
+  if (buttonOneStatus == 1 || buttonTwoStatus == 1){ // ------- translation ----------------------
+     if (buttonTwoStatus == 1){delta = 3;}
+     if (buttonOneStatus == 1){delta = -3;}
      delBlock();
      checkBlockTranslation();
   }
-  time++; 
-  if (time % fast > fast - 2 || button_4 == 1){ // --- Tetraminos falling ----------
+  ticks++; 
+  if (ticks % fast > fast - 2 || wheelOnePosition > 100){ // --- Tetraminos falling ----------
      if (fast < 3) {fast = 2;}
      y = y + 2;
      delBlock(); 
@@ -658,12 +482,8 @@ void loop() {
 //--------------------- This is the end of the main loop ----------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-void vgaPrint(const char* str, byte x, byte y, byte color){
-   vga.printPROGMEM((byte*)fnt_nanofont_data, FNT_NANOFONT_SYMBOLS_COUNT, FNT_NANOFONT_HEIGHT, 3, 1, str, x, y, color);
-}
-
-void vgaTone(int freq, int time){
+void vgaTone(int freq, int ticks){
    vga.tone(freq);
-   vga.delay(time); 
+   vga.delay(ticks); 
    vga.noTone(); 
 }

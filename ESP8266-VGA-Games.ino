@@ -98,8 +98,8 @@ ICACHE_RAM_ATTR void loop() {
   if(state == 3) { loopBreakout(); }
   if(state == 4) { loopBomber(); }
   if(state == 5) { loopDrawingToy(); }
-  if(state == 6) { loopTetris(); }
  */
+  if(state == 6) { loopTetris(); }
  }
 } 
 // ------------------------------------------- end of main loop -----------------------------------------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ void drawStartMenu(){
       } 
       if (ticPosition == 4) { // Tetris
          state = 6;
-         //setupTetris();
+         setupTetris();
       } 
    }
 }

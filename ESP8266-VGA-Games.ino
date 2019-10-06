@@ -18,9 +18,12 @@
 *                                                                  * 
 *******************************************************************/ 
 
-#include <VGAX.h>
+#include <ESPVGAX.h>
 #include <math.h>
-#include <VGAXUtils.h> 
+#define ESPVGAX_SCALEX 4
+#define ESPVGAX_SCALEY 8
+#include "ESPVGAXUtils.h"
+#include <fonts/arial12.h>
 
 #define FNT_NANOFONT_HEIGHT 6
 #define FNT_NANOFONT_SYMBOLS_COUNT 95
@@ -29,17 +32,17 @@
 #define RIGHT_PADDLE_X (VGAX_WIDTH-4)
 #define LEFT_PADDLE_X 2
 #define MAX_Y_VELOCITY 0.1
-#define WHEEL_ONE_PIN 2 //analog
-#define WHEEL_TWO_PIN 1 //analog
-#define BUTTON_1_PIN 13 //digital 
-#define BUTTON_2_PIN 5  //digital
-#define BUTTON_3_PIN 11 //digital
+#define WHEEL_ONE_PIN A0 //analog
+#define WHEEL_TWO_PIN A0 //analog
+#define BUTTON_1_PIN D3 //digital
+#define BUTTON_2_PIN D4  //digital
+#define BUTTON_3_PIN D0 //digital
 #define BUTTON_4_PIN 12 //digital
 #define BUTTON_5_PIN 10 //digital
 // NB: pin A0 is used for the sound 
 
-VGAX vga;
-VGAXUtils vgaU;
+ESPVGAX vga;
+ESPVGAXUtils vgaU;
 
 //data size=570 bytes
 const unsigned char fnt_nanofont_data[FNT_NANOFONT_SYMBOLS_COUNT][1+FNT_NANOFONT_HEIGHT] PROGMEM={
@@ -181,8 +184,8 @@ void setup() {
 boolean buttonOneStatus; 
 boolean buttonTwoStatus; 
 boolean buttonThreeStatus; 
-boolean buttonFourStatus; 
-boolean buttonFiveStatus; 
+boolean buttonFourStatus=0;
+boolean buttonFiveStatus=0;
 byte wheelOnePosition; 
 byte wheelTwoPosition;
 byte state = 1; 
@@ -242,14 +245,21 @@ byte yLineTmp[4] = {0,0,0,0};
 
 //------------------------------------------------------------------------------------------------------
 
-void processInputs() {
-  buttonOneStatus = digitalRead(BUTTON_1_PIN); // ---------------- tasto nero
-  buttonTwoStatus = digitalRead(BUTTON_2_PIN); // ---------------- tasto blu 
-  buttonThreeStatus = digitalRead(BUTTON_3_PIN); // -------------- tasto rosso
-  buttonFourStatus = digitalRead(BUTTON_4_PIN); // --------------- tasto giallo 
-  buttonFiveStatus = digitalRead(BUTTON_5_PIN); // --------------- tasto verde 
+ICACHE_RAM_ATTR void processInputs() {
+  pinMode(BUTTON_1_PIN,OUTPUT);
+  pinMode(BUTTON_2_PIN,OUTPUT);
+  digitalWrite(BUTTON_1_PIN,HIGH);
+  digitalWrite(BUTTON_2_PIN,LOW);
   wheelOnePosition = 127 - byte(analogRead(WHEEL_ONE_PIN)/8); //to change direction of the wheel remove "127 -" ---------------------
-  wheelTwoPosition = byte(analogRead(WHEEL_TWO_PIN)/8); 
+  digitalWrite(BUTTON_1_PIN,LOW);
+  digitalWrite(BUTTON_2_PIN,HIGH);
+  wheelTwoPosition = 127 - byte(analogRead(WHEEL_TWO_PIN)/8);
+  pinMode(BUTTON_1_PIN,INPUT_PULLUP);
+  pinMode(BUTTON_2_PIN,INPUT_PULLUP);
+  pinMode(BUTTON_3_PIN,INPUT);
+  buttonOneStatus = 1 - digitalRead(BUTTON_1_PIN);
+  buttonTwoStatus = 1 - digitalRead(BUTTON_2_PIN);
+  buttonThreeStatus = 1 - digitalRead(BUTTON_3_PIN);
 }
 
 void buttonZeroing(){
@@ -677,19 +687,27 @@ void vgaTone(int freq, byte time) {
 }
 
 void vgaPrint(const char* str, byte x, byte y, byte color){
-   vga.printPROGMEM((byte*)fnt_nanofont_data, FNT_NANOFONT_SYMBOLS_COUNT, FNT_NANOFONT_HEIGHT, 3, 1, str, x, y, color);
+   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
+   vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
 }
 
 void vgaPrintNumber(byte number, byte x, byte y, byte color){
    char scoreChar[2];
    sprintf(scoreChar,"%d",number);
-   vga.printSRAM((byte*)fnt_nanofont_data, FNT_NANOFONT_SYMBOLS_COUNT, FNT_NANOFONT_HEIGHT, 1, 1, scoreChar, x, y, color);
+   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
+   vga.print_P(scoreChar, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
 }
 
 // -------------------------------------- This is the main loop of the game -----------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 void loop() {
   if (state != 5) {processInputs(); } //tetris has its own processInputsTetris()
+  if(buttonOneStatus == 1 && buttonTwoStatus == 1 && buttonThreeStatus == 1) {
+    while(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1) {
+      processInputs();
+    }
+    state = 0;
+  }
   if(state == 1 || state == 0) { drawStartMenu(); } 
   if(state == 2) { waitForStart(); }  // Pong 
   if(state == 3) { pong(); }
@@ -737,7 +755,7 @@ void drawStartMenu(){
       vgaPrint(str40, 26, ticPosition, 1);
       vga.delay(200);
    }
-   if (buttonFourStatus == 1){ //game choice ---------------------------
+   if (buttonTwoStatus == 1){ //game choice ---------------------------
       buttonZeroing(); 
       vga.clear(0);
       if (ticPosition == 12) { // Pong
@@ -1554,4 +1572,3 @@ void tetris() {
 //-----------------------------------------------------------------------------------------------
 //--------------------- This is the end of the main loop ----------------------------------------
 //-----------------------------------------------------------------------------------------------
-

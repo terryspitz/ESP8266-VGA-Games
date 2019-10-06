@@ -25,7 +25,7 @@
 #define WHEEL_ONE_PIN A0 //analog
 #define WHEEL_TWO_PIN A0 //analog
 #define BUTTON_1_PIN D3 //digital
-#define BUTTON_2_PIN D4  //digital
+#define BUTTON_2_PIN D4  //digital - do not use ESPVGAX_EXTRA_COLORS!
 #define BUTTON_3_PIN D0 //digital
 
 ESPVGAX vga;
@@ -93,8 +93,8 @@ ICACHE_RAM_ATTR void loop() {
     state = 0;
   }
   if(state == 1 || state == 0) { drawStartMenu(); } 
-/*
   if(state == 2) { loopPong(); }
+/*
   if(state == 3) { loopBreakout(); }
   if(state == 4) { loopBomber(); }
   if(state == 5) { loopDrawingToy(); }
@@ -142,7 +142,7 @@ void drawStartMenu(){
       vga.clear(0);
       if (ticPosition == 0) { // Pong
          state = 2;
-         //setupPong(); 
+         setupPong(); 
       } 
       if (ticPosition == 1) { // Breakout 
          state = 3;

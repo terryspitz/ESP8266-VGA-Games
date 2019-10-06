@@ -14,16 +14,11 @@
 *******************************************************************/ 
 
 #include <ESPVGAX.h>
-ESPVGAX vga;
-#include <fonts/arial12.h> 
 
-#define POT_ONE_PIN 0 //analog
-#define POT_TWO_PIN 14 //analog
-#define BUTTON_ONE_PIN 16 //digital NB: pin 16 = D0 
 #define Horiz_Resolution 480 
 #define Vert_Resolution 512
 #define Pad_Length 48
-#define radius 6
+const int radius=6;
 
 int vgaWidth = ESPVGAX_WIDTH - 16;
 int vgaHeight = ESPVGAX_HEIGHT;
@@ -39,21 +34,16 @@ byte scoreL;
 byte scoreR; 
 char bufferL[8];
 char bufferR[8];
-boolean buttonOneStatus;
 int potOnePosition; 
 int potTwoPosition;
 int potOnePositionOld; 
 int potTwoPositionOld;
 
-void setup() {
-  vga.begin();
-  pinMode(BUTTON_ONE_PIN, INPUT);
-  pinMode(12, OUTPUT);
-  pinMode(14, OUTPUT);
+void setupPong() {
   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
   vga.drawRect(0, 0, ESPVGAX_WIDTH - 16, ESPVGAX_HEIGHT - 1, 1); 
   vga.print_P("ESP8266 VGAx Pong", 200, 200, true, -1, ESPVGAX_OP_OR, true);
-  processInputs (); 
+  processInputsPong ();
   DrawPad(1, potOnePosition, 1); 
   DrawPad(vgaWidth - 2*radius, potTwoPosition, 1); 
   potOnePositionOld = potOnePosition; 
@@ -62,9 +52,8 @@ void setup() {
 
 //________________________________ Main Loop __________________________________________________
 //_____________________________________________________________________________________________
-void loop() {
-  while (true) {
-  processInputs (); 
+ICACHE_RAM_ATTR void loopPong() {
+  processInputsPong ();
   if (!(cx == cx0 && cy == cy0)) { drawBall(cx, cy, 1); }
   if (potOnePosition != potOnePositionOld ){ 
     DrawPad(1, potOnePositionOld, 0);
@@ -83,26 +72,21 @@ void loop() {
      ballIni(); 
      ballStatus = 0; 
   }
-  //ESPVGAX::delay(24);
   vga.delay(34);
   if (!(cx == cx0 && cy == cy0)) { drawBall(cx0, cy0, 0); }
- }
 }
 //_______________________________________________________________________________________________________
 //_______________________________________________________________________________________________________
 
-void processInputs (){
-  digitalWrite(14, HIGH);
-  digitalWrite(12, LOW);
-  //vga.delay(8);
-  potOnePosition = map(analogRead(0), 40, 980, Pad_Length/2, 512 - Pad_Length/2); 
+ICACHE_RAM_ATTR void processInputsPong (){
+  int potOne = wheelOnePosition * 8;
+  int potTwo = wheelTwoPosition * 8;
+
+  potOnePosition = map(potOne, 40, 980, Pad_Length/2, 512 - Pad_Length/2); 
   potOnePosition = constrain(potOnePosition, Pad_Length/2 + 1, ESPVGAX_HEIGHT - Pad_Length/2 - 1); 
-  buttonOneStatus = digitalRead(BUTTON_ONE_PIN); 
-  digitalWrite(14, LOW);
-  digitalWrite(12, HIGH);
-  //vga.delay(8);
-  potTwoPosition = map(analogRead(0), 40, 980, Pad_Length/2, 512 - Pad_Length/2); 
-  potTwoPosition = constrain(potTwoPosition, Pad_Length/2 + 1, ESPVGAX_HEIGHT - Pad_Length/2 - 1); 
+  potTwoPosition = map(potTwo, 40, 980, Pad_Length/2, 512 - Pad_Length/2); 
+  potTwoPosition = constrain(potTwoPosition, Pad_Length/2 + 1, ESPVGAX_HEIGHT - Pad_Length/2 - 1);
+  
 }
 
 //_______________________________________________________________________________________________________
@@ -193,4 +177,3 @@ void gameOver(){
   scoreR = 0;
   vga.print_P(" Game Over ", 200, 200, true, -1, ESPVGAX_OP_OR, true);
 }
-

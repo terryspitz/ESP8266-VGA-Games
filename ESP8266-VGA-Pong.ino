@@ -17,7 +17,8 @@
 
 #define Horiz_Resolution 480 
 #define Vert_Resolution 512
-#define Pad_Length 48
+const int Pad_Length=48*2;
+const int waitCycles=34*2;
 const int radius=6;
 
 int vgaWidth = ESPVGAX_WIDTH - 16;
@@ -72,7 +73,7 @@ ICACHE_RAM_ATTR void loopPong() {
      ballIni(); 
      ballStatus = 0; 
   }
-  vga.delay(34);
+  vga.delay(waitCycles);
   if (!(cx == cx0 && cy == cy0)) { drawBall(cx0, cy0, 0); }
 }
 //_______________________________________________________________________________________________________

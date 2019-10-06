@@ -54,16 +54,18 @@ ICACHE_RAM_ATTR void processInputs() {
   pinMode(BUTTON_2_PIN,OUTPUT);
   digitalWrite(BUTTON_1_PIN,HIGH);
   digitalWrite(BUTTON_2_PIN,LOW);
-  wheelOnePosition = 127 - byte(analogRead(WHEEL_ONE_PIN)/8); //to change direction of the wheel remove "127 -" ---------------------
+  byte newWheelOnePosition = 127 - byte(analogRead(WHEEL_ONE_PIN)/8); //to change direction of the wheel remove "127 -" ---------------------
   digitalWrite(BUTTON_1_PIN,LOW);
   digitalWrite(BUTTON_2_PIN,HIGH);
-  wheelTwoPosition = 127 - byte(analogRead(WHEEL_TWO_PIN)/8); 
+  byte newWheelTwoPosition = 127 - byte(analogRead(WHEEL_TWO_PIN)/8); 
   pinMode(BUTTON_1_PIN,INPUT_PULLUP);
   pinMode(BUTTON_2_PIN,INPUT_PULLUP);
   pinMode(BUTTON_3_PIN,INPUT);
   buttonOneStatus = 1-digitalRead(BUTTON_1_PIN);
   buttonTwoStatus = 1-digitalRead(BUTTON_2_PIN);
   buttonThreeStatus = 1-digitalRead(BUTTON_3_PIN);
+  if(buttonOneStatus == 0) wheelOnePosition=newWheelOnePosition;
+  if(buttonTwoStatus == 0) wheelTwoPosition=newWheelTwoPosition;
 }
 
 //------------------------------------------- the next three voids are shared ----------------------------------------------

@@ -18,7 +18,7 @@
 *                                                                  * 
 *******************************************************************/ 
 
-#include <ESPVGAX.h>
+#include "ESP8266-VGA-Games.h"
 #include <math.h>
 #include <fonts/arial12.h>
 

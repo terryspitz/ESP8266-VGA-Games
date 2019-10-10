@@ -23,11 +23,11 @@
 // http://forum.arduino.cc/index.php?topic=328631.0
 
 #include <math.h>
-#include <ESPVGAX.h>
+#include "ESP8266-VGA-Games.h"
 #define ESPVGAX_SCALEX 4
 #define ESPVGAX_SCALEY 8
 #include "ESPVGAXUtils.h"
-ESPVGAXUtils vgaU;
+static ESPVGAXUtils vgaU;
 
 static const char str0[] PROGMEM="0"; 
 static const char str1[] PROGMEM="1"; 
@@ -45,33 +45,39 @@ static const char str12[] PROGMEM="by Roberto Melzi";
 static const char str13[] PROGMEM="Game"; 
 static const char str14[] PROGMEM="Over!"; 
 
-int block[4][2]={{0,0},{0,0},{0,0},{0,0}};
-int blockExt[4][2]={{0,0},{0,0},{0,0},{0,0}};
-int blockOld[4][2]={{0,0},{0,0},{0,0},{0,0}};
-int blockTmp[4][2]={{0,0},{0,0},{0,0},{0,0}};
-int blockTr[4][2]={{0,0},{0,0},{0,0},{0,0}};
-int yLine[4] = {0,0,0,0}; 
-int yLineTmp[4] = {0,0,0,0}; 
-int yCounter = 0; 
-int x = 60; 
-int y = 6; 
-int z = 10; 
-int score; 
-int noLoop = -1; 
-int clock = 1; 
-int delta = 0;  
-int color = 1; 
-int colorOld; 
-int blockN; 
-int blockNext; 
-int busy; 
-int noDelete = 0; 
-int k = 0; 
-int a = 40;
-int b = 10; 
-int counterMenu = 0; 
-unsigned long ticks = 0;
-int fast = 14; //14; 
+static int block[4][2]={{0,0},{0,0},{0,0},{0,0}};
+static int blockExt[4][2]={{0,0},{0,0},{0,0},{0,0}};
+static int blockOld[4][2]={{0,0},{0,0},{0,0},{0,0}};
+static int blockTmp[4][2]={{0,0},{0,0},{0,0},{0,0}};
+static int blockTr[4][2]={{0,0},{0,0},{0,0},{0,0}};
+static int yLine[4] = {0,0,0,0}; 
+static int yLineTmp[4] = {0,0,0,0}; 
+static int yCounter = 0; 
+static int x = 60; 
+static int y = 6; 
+static int z = 10; 
+static int score; 
+static int noLoop = -1; 
+static int clock = 1; 
+static int delta = 0;  
+static int color = 1; 
+static int colorOld; 
+static int blockN; 
+static int blockNext; 
+static int busy; 
+static int noDelete = 0; 
+static int k = 0; 
+static int a = 40;
+static int b = 10; 
+static int counterMenu = 0; 
+static unsigned long ticks = 0;
+static int fast = 14; //14; 
+
+static void drawGameScreen();
+static void vgaTone(int freq, int ticks);
+static void gameOver();
+static void checkForFullLine();
+static void drawScore(int i);
 
 void setupTetris() {
   noLoop = -1;
@@ -80,17 +86,17 @@ void setupTetris() {
   ticks = 0;
 }
 
-ICACHE_RAM_ATTR void processInputsTetris() {
+static ICACHE_RAM_ATTR void processInputsTetris() {
   vga.delay(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1 ? 100 : 25);
 }
 
-void drawMenu() {
+static void drawMenu() {
   vga.clear(0);
   drawGameScreen();
   drawScore(score);
 }
 
-void drawScore(int i) {
+static void drawScore(int i) {
     if (i > 39){
        score = 0;
        i = 0; 
@@ -104,7 +110,7 @@ void drawScore(int i) {
     vgaU.draw_line(19, 50, 22, 50, 3); 
 }
     
-void drawBorder() {
+static void drawBorder() {
    // total screen size = 120/60
    // tetris game board: width = 30; heigh = 60
    vgaU.draw_line(44,0,78,0,3);
@@ -114,19 +120,19 @@ void drawBorder() {
 }
 
 // --------------------- this is for the beginning game window ------------------------ 
-void drawStartScreen() {
+static void drawStartScreen() {
    drawBorder(); 
    drawGameScreen();
    vga.delay(200);
 } 
 
 // ---------------------- this is the main function to draw the game screen -----------
-void drawGameScreen() {
+static void drawGameScreen() {
   drawBorder(); 
 }
 
 // ----------------------- Tetriminos definition --------------------------------------
-void blockDef(int i) {
+static void blockDef(int i) {
   if (i == 1){
   // O
   block[0][0] = 0;
@@ -214,7 +220,7 @@ void blockDef(int i) {
 }
 
 // -------------------------- expansion for 4:3 monitors ------------------------------ 
-void blockExtension() {
+static void blockExtension() {
    for (int i = 0; i < 4; i++){
       blockExt[0][0] = block[0][0]*3;
       blockExt[0][1] = block[0][1]*2;
@@ -227,7 +233,7 @@ void blockExtension() {
    }
 }
  
-void blockRotation(int clock){
+static void blockRotation(int clock){
   for (int i = 0; i < 4; i++){
      blockOld[0][0] = block[0][0];
      blockOld[0][1] = block[0][1];
@@ -249,7 +255,7 @@ void blockRotation(int clock){
      block[3][1] = -blockOld[3][0]*clock;
   }
 }
-void blockTranslation(int x, int y) {
+static void blockTranslation(int x, int y) {
    for (int i = 0; i < 4; i++){
       blockTr[0][0] = blockExt[0][0] + x;
       blockTr[0][1] = blockExt[0][1] + y;
@@ -262,7 +268,7 @@ void blockTranslation(int x, int y) {
    }
 }
 
-void delBlock(){
+static void delBlock(){
   if (noDelete == 1) {noDelete = 0;} 
   else {
       for (int i = 0; i < 4; i++){
@@ -272,7 +278,7 @@ void delBlock(){
    }
 }
 
-void drawBlock(){
+static void drawBlock(){
   for (int i = 0; i < 4; i++){
      vgaU.draw_line(blockTr[i][0],blockTr[i][1],blockTr[i][0] + 3,blockTr[i][1], color);
      vgaU.draw_line(blockTr[i][0],blockTr[i][1] + 1,blockTr[i][0] + 3,blockTr[i][1] + 1, color);   
@@ -289,21 +295,21 @@ void drawBlock(){
   }
 }
 
-void drawBlockTmp(){
+static void drawBlockTmp(){
   for (int i = 0; i < 4; i++){
      vgaU.draw_line(blockTmp[i][0],blockTmp[i][1],blockTmp[i][0] + 3,blockTmp[i][1], color);
      vgaU.draw_line(blockTmp[i][0],blockTmp[i][1] + 1,blockTmp[i][0] + 3,blockTmp[i][1] + 1, color);   
   }
 }
 
-void checkBlock(){ 
+static void checkBlock(){ 
   busy = 0;  
   for (int i = 0; i < 4; i++){
      busy = busy + vgaU.getpixel(blockTr[i][0], blockTr[i][1]) + vgaU.getpixel(blockTr[i][0] + 2, blockTr[i][1]);
   }
 }
 
-void replaceBlock(){
+static void replaceBlock(){
      blockExtension(); 
      blockTranslation(x, y); 
      checkBlock();
@@ -317,13 +323,13 @@ void replaceBlock(){
         noLoop = 0; 
         noDelete = 1; 
         if (y < 8) {
-           gameOverTetris();
+           gameOver();
         }
      }
      vga.delay(1);
 }
 
-void gameOverTetris(){ // ------------------------------------------- Game Over ! --------------------------------------------------
+static void gameOver(){ // ------------------------------------------- Game Over ! --------------------------------------------------
    noLoop = -1; 
    score = 0;
    fast = 14;
@@ -342,7 +348,7 @@ void gameOverTetris(){ // ------------------------------------------- Game Over 
    vga.clear(0);  
 }
 
-void drawBlockNext(){ // ----- draw next block on the right side -------------------------------- 
+static void drawBlockNext(){ // ----- draw next block on the right side -------------------------------- 
      blockExtension(); 
      blockTranslation(100, 10); 
      vgaU.draw_line(95, 8, 112, 8, 0);
@@ -356,7 +362,7 @@ void drawBlockNext(){ // ----- draw next block on the right side ---------------
      drawBlock(); 
 }
 
-void checkBlockTranslation(){
+static void checkBlockTranslation(){
      x = x + delta; 
      blockExtension(); 
      blockTranslation(x, y); 
@@ -374,7 +380,7 @@ void checkBlockTranslation(){
      vga.delay(50);
 }
 
-void checkBlockRotation(){
+static void checkBlockRotation(){
      //x = x + delta; 
      blockExtension(); 
      blockTranslation(x, y); 
@@ -393,7 +399,7 @@ void checkBlockRotation(){
      vga.delay(50);
 }
 
-void checkForFullLine() { // --------------------- check if the line is full and must be deleted --------------
+static void checkForFullLine() { // --------------------- check if the line is full and must be deleted --------------
    for (int i = 0; i < 4; i++){
       for (int j = 45; j < 76; j += 3) {
          if (vgaU.getpixel(j, blockTmp[i][1]) >0){k++; }
@@ -482,7 +488,7 @@ ICACHE_RAM_ATTR void loopTetris() {
 //--------------------- This is the end of the main loop ----------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-void vgaTone(int freq, int ticks){
+static void vgaTone(int freq, int ticks){
    vga.tone(freq);
    vga.delay(ticks); 
    vga.noTone(); 

@@ -13,32 +13,41 @@
 *                                                                  * 
 *******************************************************************/ 
 
-#include <ESPVGAX.h>
+#include "ESP8266-VGA-Games.h"
+#include <fonts/arial12.h>
 
-#define Horiz_Resolution 480 
-#define Vert_Resolution 512
-const int Pad_Length=48*2;
-const int waitCycles=34*2;
-const int radius=6;
+static const int Horiz_Resolution=480;
+static const int Vert_Resolution=512;
+static const int Pad_Length=48*2;
+static const int waitCycles=34*2;
+static const int radius=6;
 
-int vgaWidth = ESPVGAX_WIDTH - 16;
-int vgaHeight = ESPVGAX_HEIGHT;
-float ballStatus = 1; 
-int deltaX = 4;
-int deltaY = 3; 
-int cx = vgaWidth /2; 
-int cy = vgaHeight/2; 
-int cx0 = cx; 
-int cy0 = cy; 
-int angle; 
-byte scoreL;
-byte scoreR; 
-char bufferL[8];
-char bufferR[8];
-int potOnePosition; 
-int potTwoPosition;
-int potOnePositionOld; 
-int potTwoPositionOld;
+static int vgaWidth = ESPVGAX_WIDTH - 16;
+static int vgaHeight = ESPVGAX_HEIGHT;
+static float ballStatus = 1; 
+static int deltaX = 4;
+static int deltaY = 3; 
+static int cx = vgaWidth /2; 
+static int cy = vgaHeight/2; 
+static int cx0 = cx; 
+static int cy0 = cy; 
+static int angle; 
+static byte scoreL;
+static byte scoreR; 
+static char bufferL[8];
+static char bufferR[8];
+static int potOnePosition; 
+static int potTwoPosition;
+static int potOnePositionOld; 
+static int potTwoPositionOld;
+
+static void gameOver();
+static void processInputsPong ();
+static void DrawPad(int xPos, int potPosition, boolean myColor);
+static void drawBall(int cx, int cy, byte myColor);
+static void ballPosition();
+static void ballIni();
+static void printScore();
 
 void setupPong() {
   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
@@ -79,7 +88,7 @@ ICACHE_RAM_ATTR void loopPong() {
 //_______________________________________________________________________________________________________
 //_______________________________________________________________________________________________________
 
-ICACHE_RAM_ATTR void processInputsPong (){
+static ICACHE_RAM_ATTR void processInputsPong (){
   int potOne = wheelOnePosition * 8;
   int potTwo = wheelTwoPosition * 8;
 
@@ -91,17 +100,17 @@ ICACHE_RAM_ATTR void processInputsPong (){
 }
 
 //_______________________________________________________________________________________________________
-void drawBall(int cx, int cy, byte myColor){
+static void drawBall(int cx, int cy, byte myColor){
   vga.drawCircle(cx, cy, radius, myColor, true); 
 }
 
 //_______________________________________________________________________________________________________
-void DrawPad(int xPos, int potPosition, boolean myColor){
+static void DrawPad(int xPos, int potPosition, boolean myColor){
   vga.drawRect(xPos, potPosition - Pad_Length/2, 2*radius, Pad_Length, myColor, true); 
 } 
 
 //_______________________________________________________________________________________________________
-void ballPosition(){
+static void ballPosition(){
   cx0 = cx;
   cy0 = cy; 
   cx = cx + deltaX;
@@ -148,7 +157,7 @@ void ballPosition(){
 }
 
 //_______________________________________________________________________________________________________
-void ballIni(){
+static void ballIni(){
    drawBall(cx0, cy0, 0);
    vga.drawRect(200, 198, 130, 20, 0, true); 
    if (ballStatus == 1) {angle = potOnePosition - cy0;} 
@@ -159,7 +168,7 @@ void ballIni(){
 }
 
 //_______________________________________________________________________________________________________
-void printScore(){
+static void printScore(){
   dtostrf(scoreL, 4, 0, bufferL); 
   dtostrf(scoreR, 4, 0, bufferR); 
   vga.print_P("Left = ", 200, 200, true, -1, ESPVGAX_OP_OR, true);
@@ -169,7 +178,7 @@ void printScore(){
 }
 
 //_______________________________________________________________________________________________________
-void gameOver(){
+static void gameOver(){
   vga.drawRect(200, 198, 130, 20, 0, true); 
   //if (scoreL > 9){vga.print_P("Left Wins!  GAME OVER ", 200, 200, true, -1, ESPVGAX_OP_OR, true);}
   //if (scoreR > 9){vga.print_P("Right Wins!  GAME OVER ", 200, 200, true, -1, ESPVGAX_OP_OR, true);}

@@ -12,10 +12,12 @@
 
 #include "ESP8266-VGA-Games.h"
 #include <math.h>
-#define ESPVGAX_SCALEX 8
-#define ESPVGAX_SCALEY 8
 #include "ESPVGAXUtils.h"
-static ESPVGAXUtils vgaU;
+static const int ESPVGAX_SCALEX=8;
+static const int ESPVGAX_SCALEY=8;
+static const int VGAX_WIDTH=(ESPVGAX_WIDTH/8);
+static const int VGAX_HEIGHT=(ESPVGAX_HEIGHT/8);
+static ESPVGAXUtils vgaU(ESPVGAX_SCALEX,ESPVGAX_SCALEY);
 
 static const char str0[] PROGMEM="0"; 
 static const char str1[] PROGMEM="1"; 
@@ -38,7 +40,7 @@ static byte counterMenu = 0;
 static byte counterMenu2 = 0; 
 static byte state = 1;
 static byte score = 0; 
-static byte scoreMax = 1; 
+static byte scoreMax = 10; 
 static byte foodX = 60; 
 static byte foodY = 30;
 static byte snakeMaxLength = 55; 
@@ -205,7 +207,7 @@ void loopSnake() {
         if (score > scoreMax) {
            speedDelay = speedDelay - 20;
            toneSafe(880,30);  
-           vgaPrint(str24, 10, 80, 2);
+           vgaPrint(str24, 5, 80, 2);
            vga.delay(1000);
            while(buttonOneStatus == 0){processInputs();vga.delay(100);}
            newMatch();

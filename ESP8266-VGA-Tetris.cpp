@@ -24,12 +24,10 @@
 
 #include <math.h>
 #include "ESP8266-VGA-Games.h"
-#define ESPVGAX_SCALEX 4
-#define ESPVGAX_SCALEY 8
-#define VGAX_WIDTH ESPVGAX_WIDTH
-#define VGAX_HEIGHT ESPVGAX_HEIGHT
 #include "ESPVGAXUtils.h"
-static ESPVGAXUtils vgaU;
+static const int ESPVGAX_SCALEX=4;
+static const int ESPVGAX_SCALEY=8;
+static ESPVGAXUtils vgaU(ESPVGAX_SCALEX,ESPVGAX_SCALEY);
 
 static const char str0[] PROGMEM="0"; 
 static const char str1[] PROGMEM="1"; 

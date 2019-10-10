@@ -72,6 +72,7 @@ static int b = 10;
 static int counterMenu = 0; 
 static unsigned long ticks = 0;
 static int fast = 14; //14; 
+static int buttonThreePressedTime = 0;
 
 static void drawGameScreen();
 static void vgaTone(int freq, int ticks);
@@ -461,7 +462,20 @@ ICACHE_RAM_ATTR void loopTetris() {
      y = 5; 
      noLoop = 1; 
   }
-  if (buttonThreeStatus == 1){ // ------------------------ rotation -------------------------
+
+  int buttonThreeStatusShortLong=0;
+  if (buttonThreeStatus == 1 && buttonThreePressedTime == 0){
+    buttonThreePressedTime=millis();
+  }
+  if (buttonThreeStatus == 1 && buttonThreePressedTime != 0){
+    if (millis()-buttonThreePressedTime > 500) buttonThreeStatusShortLong=2;
+  }
+  if (buttonThreeStatus == 0 && buttonThreePressedTime != 0){
+    if (millis()-buttonThreePressedTime <= 500) buttonThreeStatusShortLong=1;
+    buttonThreePressedTime=0;
+  }
+
+  if (buttonThreeStatusShortLong == 1){ // ------------------------ rotation -------------------------
      //if (button_5 == 1){clock = -1;}
      if (buttonThreeStatus == 1){clock = 1;}
      delBlock();
@@ -475,7 +489,7 @@ ICACHE_RAM_ATTR void loopTetris() {
      checkBlockTranslation();
   }
   ticks++; 
-  if (ticks % fast > fast - 2 || wheelOnePosition > 100){ // --- Tetraminos falling ----------
+  if (ticks % fast > fast - 2 || buttonThreeStatusShortLong == 2){ // --- Tetraminos falling ----------
      if (fast < 3) {fast = 2;}
      y = y + 2;
      delBlock(); 

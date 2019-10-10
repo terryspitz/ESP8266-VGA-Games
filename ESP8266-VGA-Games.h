@@ -14,7 +14,7 @@ extern void processInputs();
 extern void vgaPrint(const char* str, byte x, byte y, byte color);
 extern void vgaPrintNumber(byte number, byte x, byte y, byte color);
 
-extern void setupPong();
+extern void setupPong(int players);
 extern void setupTetris();
 extern void setupSnake();
 extern void loopPong();

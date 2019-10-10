@@ -40,6 +40,7 @@ static int potOnePosition;
 static int potTwoPosition;
 static int potOnePositionOld; 
 static int potTwoPositionOld;
+static int players;
 
 static void gameOver();
 static void processInputsPong ();
@@ -49,7 +50,8 @@ static void ballPosition();
 static void ballIni();
 static void printScore();
 
-void setupPong() {
+void setupPong(int players_) {
+  players=players_;
   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
   vga.drawRect(0, 0, ESPVGAX_WIDTH - 16, ESPVGAX_HEIGHT - 1, 1); 
   vga.print_P("ESP8266 VGAx Pong", 200, 200, true, -1, ESPVGAX_OP_OR, true);
@@ -96,7 +98,7 @@ static ICACHE_RAM_ATTR void processInputsPong (){
   potOnePosition = constrain(potOnePosition, Pad_Length/2 + 1, ESPVGAX_HEIGHT - Pad_Length/2 - 1); 
   potTwoPosition = map(potTwo, 40, 980, Pad_Length/2, 512 - Pad_Length/2); 
   potTwoPosition = constrain(potTwoPosition, Pad_Length/2 + 1, ESPVGAX_HEIGHT - Pad_Length/2 - 1);
-  
+  if (players == 1) potTwoPosition=potOnePosition;
 }
 
 //_______________________________________________________________________________________________________

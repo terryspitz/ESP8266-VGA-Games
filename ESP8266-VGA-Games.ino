@@ -32,7 +32,7 @@ ESPVGAX vga;
 
 static const char str30[] PROGMEM="Choose ESP8266 VGAx Game"; 
 static const char str31[] PROGMEM="Pong"; 
-static const char str32[] PROGMEM="Breakout"; 
+static const char str32[] PROGMEM="Pong 1"; // "Breakout"; 
 static const char str33[] PROGMEM="Bomber"; 
 static const char str34[] PROGMEM="Etch-a-Sketch"; 
 static const char str35[] PROGMEM="Tetris"; 
@@ -147,11 +147,13 @@ void drawStartMenu(){
       vga.clear(0);
       if (ticPosition == 0) { // Pong
          state = 2;
-         setupPong(); 
+         setupPong(2); 
       } 
       if (ticPosition == 1) { // Breakout 
          state = 3;
          //setupBreakout();
+         state = 2;
+         setupPong(1);
       } 
       if (ticPosition == 2) { // Bomber
          state = 4;

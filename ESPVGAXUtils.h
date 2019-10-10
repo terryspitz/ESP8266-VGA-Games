@@ -5,14 +5,19 @@ Compatibility Library to use Arduino VGAX code with ESPVGAX
 #define __ESPVGAX_utils__
 
 #include <ESPVGAX.h>
-#define VGAX_WIDTH ESPVGAX_WIDTH
-#define VGAX_HEIGHT ESPVGAX_HEIGHT
+
 #define VGAX ESPVGAX
 #ifndef ESPVGAX_SCALEX
 #define ESPVGAX_SCALEX 1
 #endif
 #ifndef ESPVGAX_SCALEY
 #define ESPVGAX_SCALEY 1
+#endif
+#ifndef VGAX_WIDTH
+#define VGAX_WIDTH (ESPVGAX_WIDTH/ESPVGAX_SCALEX)
+#endif
+#ifndef VGAX_HEIGHT
+#define VGAX_HEIGHT (ESPVGAX_HEIGHT/ESPVGAX_SCALEY)
 #endif
 
 class ESPVGAXUtils {
@@ -43,6 +48,9 @@ public:
   }
   static inline uint8_t getpixel(uint8_t x, uint8_t y) {
     return ESPVGAX::getpixel(x*ESPVGAX_SCALEX+1, y*ESPVGAX_SCALEY+1);
+  }
+  static inline uint8_t putpixel(uint8_t x, uint8_t y, uint8_t c) {
+    ESPVGAX::drawRect(x*ESPVGAX_SCALEX, y*ESPVGAX_SCALEY, ESPVGAX_SCALEX, ESPVGAX_SCALEY, c, true, ESPVGAX_OP_SET);
   }
 };
 

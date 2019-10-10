@@ -36,6 +36,7 @@ static const char str32[] PROGMEM="Breakout";
 static const char str33[] PROGMEM="Bomber"; 
 static const char str34[] PROGMEM="Etch-a-Sketch"; 
 static const char str35[] PROGMEM="Tetris"; 
+static const char str36[] PROGMEM="Snake"; 
 
 void setup() {
   //Serial.begin(9600); 
@@ -102,6 +103,7 @@ ICACHE_RAM_ATTR void loop() {
   if(state == 5) { loopDrawingToy(); }
  */
   if(state == 6) { loopTetris(); }
+  if(state == 7) { loopSnake(); }
  }
 } 
 // ------------------------------------------- end of main loop -----------------------------------------------------------------------------------------------------------------
@@ -109,7 +111,7 @@ ICACHE_RAM_ATTR void loop() {
 
 //------------------------------------------------------- start screen -------------------------------------------------------
 int8_t ticPosition = 0;
-const int8_t ticPositionEnd = 5;
+const int8_t ticPositionEnd = 6;
 void drawStartMenu(){
    if (state == 0) {
       vga.clear(0);
@@ -119,6 +121,7 @@ void drawStartMenu(){
       vgaPrint(str33, 50, 70, 2); // bomber 
       vgaPrint(str34, 50, 90, 2); // drawing toy 
       vgaPrint(str35, 50, 110, 2); // tetris 
+      vgaPrint(str36, 50, 130, 2); // snake 
       vga.drawCircle(35, ticPosition*20+35, 5, 1, true, ESPVGAX_OP_XOR); 
       state = 1;
    }
@@ -161,6 +164,10 @@ void drawStartMenu(){
       if (ticPosition == 4) { // Tetris
          state = 6;
          setupTetris();
+      } 
+      if (ticPosition == 5) { // Snake 
+         state = 7;
+         setupSnake();
       } 
    }
 }

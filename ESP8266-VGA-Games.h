@@ -16,8 +16,9 @@ extern void vgaPrintNumber(byte number, byte x, byte y, byte color);
 
 extern void setupPong();
 extern void setupTetris();
+extern void setupSnake();
 extern void loopPong();
 extern void loopTetris();
-
+extern void loopSnake();
 
 #endif // __ESP8266-VGA-Games_h

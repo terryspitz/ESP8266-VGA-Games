@@ -26,6 +26,8 @@
 #include "ESP8266-VGA-Games.h"
 #define ESPVGAX_SCALEX 4
 #define ESPVGAX_SCALEY 8
+#define VGAX_WIDTH ESPVGAX_WIDTH
+#define VGAX_HEIGHT ESPVGAX_HEIGHT
 #include "ESPVGAXUtils.h"
 static ESPVGAXUtils vgaU;
 

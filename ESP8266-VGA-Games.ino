@@ -30,7 +30,7 @@
 
 ESPVGAX vga;
 
-static const char str30[] PROGMEM="Choose Arduino Game"; 
+static const char str30[] PROGMEM="Choose ESP8266 VGAx Game"; 
 static const char str31[] PROGMEM="Pong"; 
 static const char str32[] PROGMEM="Breakout"; 
 static const char str33[] PROGMEM="Bomber"; 
@@ -136,7 +136,7 @@ void drawStartMenu(){
    }
    if (tickMove != 0){
       vga.drawCircle(35, ticPosition*20+35, 5, 1, true, ESPVGAX_OP_XOR); 
-      ticPosition = (ticPosition+tickMove) % ticPositionEnd; 
+      ticPosition = (ticPosition+tickMove+ticPositionEnd) % ticPositionEnd; 
       vga.drawCircle(35, ticPosition*20+35, 5, 1, true, ESPVGAX_OP_XOR); 
       vga.delay(200);
    }

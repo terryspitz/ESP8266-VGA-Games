@@ -31,12 +31,13 @@
 ESPVGAX vga;
 
 static const char str30[] PROGMEM="Choose ESP8266 VGAx Game"; 
-static const char str31[] PROGMEM="Pong"; 
-static const char str32[] PROGMEM="Pong 1"; // "Breakout"; 
-static const char str33[] PROGMEM="Bomber"; 
-static const char str34[] PROGMEM="Etch-a-Sketch"; 
-static const char str35[] PROGMEM="Tetris"; 
-static const char str36[] PROGMEM="Snake"; 
+static const char str31[] PROGMEM="Pong 2-player"; 
+static const char str32[] PROGMEM="Pong 1-player"; 
+static const char str33[] PROGMEM="Breakout"; 
+static const char str34[] PROGMEM="Bomber"; 
+static const char str35[] PROGMEM="Etch-a-Sketch"; 
+static const char str36[] PROGMEM="Tetris"; 
+static const char str37[] PROGMEM="Snake"; 
 
 void setup() {
   //Serial.begin(9600); 
@@ -70,6 +71,11 @@ ICACHE_RAM_ATTR void processInputs() {
 }
 
 //------------------------------------------- the next three voids are shared ----------------------------------------------
+void vgaTone(int freq, byte time) {
+   vga.tone(freq);
+   vga.delay(time); 
+   vga.noTone(); 
+}
 
 void vgaPrint(const char* str, byte x, byte y, byte color){
    vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
@@ -97,8 +103,8 @@ ICACHE_RAM_ATTR void loop() {
   }
   if(state == 1 || state == 0) { drawStartMenu(); } 
   if(state == 2) { loopPong(); }
-/*
   if(state == 3) { loopBreakout(); }
+/*
   if(state == 4) { loopBomber(); }
   if(state == 5) { loopDrawingToy(); }
  */
@@ -111,17 +117,18 @@ ICACHE_RAM_ATTR void loop() {
 
 //------------------------------------------------------- start screen -------------------------------------------------------
 int8_t ticPosition = 0;
-const int8_t ticPositionEnd = 6;
+const int8_t ticPositionEnd = 7;
 void drawStartMenu(){
    if (state == 0) {
       vga.clear(0);
       vgaPrint(str30, 20, 5, 3);  // Choose a game
       vgaPrint(str31, 50, 30, 2); // pong
-      vgaPrint(str32, 50, 50, 2); // breakout
-      vgaPrint(str33, 50, 70, 2); // bomber 
-      vgaPrint(str34, 50, 90, 2); // drawing toy 
-      vgaPrint(str35, 50, 110, 2); // tetris 
-      vgaPrint(str36, 50, 130, 2); // snake 
+      vgaPrint(str32, 50, 50, 2); // pong single
+      vgaPrint(str33, 50, 70, 2); // breakout
+      vgaPrint(str34, 50, 90, 2); // bomber 
+      vgaPrint(str35, 50, 110, 2); // drawing toy 
+      vgaPrint(str36, 50, 130, 2); // tetris 
+      vgaPrint(str37, 50, 150, 2); // snake 
       vga.drawCircle(35, ticPosition*20+35, 5, 1, true, ESPVGAX_OP_XOR); 
       state = 1;
    }
@@ -150,24 +157,26 @@ void drawStartMenu(){
          setupPong(2); 
       } 
       if (ticPosition == 1) { // Breakout 
-         state = 3;
-         //setupBreakout();
          state = 2;
          setupPong(1);
       } 
-      if (ticPosition == 2) { // Bomber
+      if (ticPosition == 2) { // Breakout 
+         state = 3;
+         setupBreakout();
+      }
+      if (ticPosition == 3) { // Bomber
          state = 4;
          //setupBomber();
       } 
-      if (ticPosition == 3) { // drawing Toy 
+      if (ticPosition == 4) { // drawing Toy 
          state = 5;
          //setupDrawingToy();
       } 
-      if (ticPosition == 4) { // Tetris
+      if (ticPosition == 5) { // Tetris
          state = 6;
          setupTetris();
       } 
-      if (ticPosition == 5) { // Snake 
+      if (ticPosition == 6) { // Snake 
          state = 7;
          setupSnake();
       } 

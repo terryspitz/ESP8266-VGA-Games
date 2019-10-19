@@ -50,19 +50,24 @@ boolean buttonTwoStatus;
 boolean buttonThreeStatus;
 byte wheelOnePosition; 
 byte wheelTwoPosition;
+boolean enableWheels=true;
 
 ICACHE_RAM_ATTR void processInputs() {
-  pinMode(BUTTON_1_PIN,OUTPUT);
-  pinMode(BUTTON_2_PIN,OUTPUT);
-  digitalWrite(BUTTON_1_PIN,HIGH);
-  digitalWrite(BUTTON_2_PIN,LOW);
-  byte newWheelOnePosition = 127 - byte(analogRead(WHEEL_ONE_PIN)/8); //to change direction of the wheel remove "127 -" ---------------------
-  digitalWrite(BUTTON_1_PIN,LOW);
-  digitalWrite(BUTTON_2_PIN,HIGH);
-  byte newWheelTwoPosition = 127 - byte(analogRead(WHEEL_TWO_PIN)/8); 
-  pinMode(BUTTON_1_PIN,INPUT_PULLUP);
-  pinMode(BUTTON_2_PIN,INPUT_PULLUP);
-  pinMode(BUTTON_3_PIN,INPUT);
+  byte newWheelOnePosition=0;
+  byte newWheelTwoPosition=0;
+  if (enableWheels) {
+    pinMode(BUTTON_1_PIN,OUTPUT);
+    pinMode(BUTTON_2_PIN,OUTPUT);
+    digitalWrite(BUTTON_1_PIN,HIGH);
+    digitalWrite(BUTTON_2_PIN,LOW);
+    newWheelOnePosition = 127 - byte(analogRead(WHEEL_ONE_PIN)/8); //to change direction of the wheel remove "127 -" ---------------------
+    digitalWrite(BUTTON_1_PIN,LOW);
+    digitalWrite(BUTTON_2_PIN,HIGH);
+    newWheelTwoPosition = 127 - byte(analogRead(WHEEL_TWO_PIN)/8); 
+    pinMode(BUTTON_1_PIN,INPUT_PULLUP);
+    pinMode(BUTTON_2_PIN,INPUT_PULLUP);
+    pinMode(BUTTON_3_PIN,INPUT);
+  }
   buttonOneStatus = 1-digitalRead(BUTTON_1_PIN);
   buttonTwoStatus = 1-digitalRead(BUTTON_2_PIN);
   buttonThreeStatus = 1-digitalRead(BUTTON_3_PIN);
@@ -99,6 +104,7 @@ ICACHE_RAM_ATTR void loop() {
     while(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1) {
       processInputs();
     }
+    enableWheels = true;
     state = 0;
   }
   if(state == 1 || state == 0) { drawStartMenu(); } 
@@ -119,6 +125,7 @@ ICACHE_RAM_ATTR void loop() {
 int8_t ticPosition = 0;
 const int8_t ticPositionEnd = 7;
 void drawStartMenu(){
+   enableWheels = false;
    if (state == 0) {
       vga.clear(0);
       vgaPrint(str30, 20, 5, 3);  // Choose a game
@@ -152,16 +159,19 @@ void drawStartMenu(){
         processInputs();
       }
       vga.clear(0);
-      if (ticPosition == 0) { // Pong
+      if (ticPosition == 0) { // Pong 2-player
          state = 2;
+         enableWheels = true;
          setupPong(2); 
       } 
-      if (ticPosition == 1) { // Breakout 
+      if (ticPosition == 1) { // Pong 1-player 
          state = 2;
+         enableWheels = true;
          setupPong(1);
       } 
       if (ticPosition == 2) { // Breakout 
          state = 3;
+         enableWheels = true;
          setupBreakout();
       }
       if (ticPosition == 3) { // Bomber
@@ -174,10 +184,12 @@ void drawStartMenu(){
       } 
       if (ticPosition == 5) { // Tetris
          state = 6;
+         enableWheels = false;
          setupTetris();
       } 
       if (ticPosition == 6) { // Snake 
          state = 7;
+         enableWheels = false;
          setupSnake();
       } 
    }

@@ -87,10 +87,6 @@ void setupTetris() {
   ticks = 0;
 }
 
-static ICACHE_RAM_ATTR void processInputsTetris() {
-  vga.delay(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1 ? 100 : 25);
-}
-
 static void drawMenu() {
   vga.clear(0);
   drawGameScreen();
@@ -336,14 +332,14 @@ static void gameOver(){ // ------------------------------------------- Game Over
    fast = 14;
    ticks = 0; 
    vgaPrint(str13, 92, 30, 1);
-   vgaPrint(str14, 92, 38, 1);
+   vgaPrint(str14, 92, 50, 1);
    vga.delay(300);
    vgaTone(660, 200); 
    vgaTone(330, 200);
    vgaTone(165, 200); 
    vgaTone(82, 200);
    while (buttonOneStatus == 0 && buttonTwoStatus == 0 && buttonThreeStatus == 0) {
-      processInputs(); processInputsTetris();
+      processInputs();
       vga.delay(200);
    }
    vga.clear(0);  
@@ -445,36 +441,16 @@ static void checkForFullLine() { // --------------------- check if the line is f
 //--------------------- This is the main loop of the game ---------------------------------------
 //-----------------------------------------------------------------------------------------------
 
-ICACHE_RAM_ATTR void loopTetris() {
-  processInputsTetris();
-  if (noLoop < 1){ // --------------- to generate new Tetraminos --------------------------------
-     blockN = blockNext; 
-     if (noLoop == -1 ) { // -------------- only at the game beginning  -------------------------
-        drawMenu(); 
-     }
-     drawGameScreen();
-     drawScore(score);
-     blockNext = 1 + int(random(7));
-     blockDef(blockNext);
-     drawBlockNext();
-     blockDef(blockN);
-     x = 57; 
-     y = 5; 
-     noLoop = 1; 
-  }
-
-  int buttonThreeStatusShortLong=0;
+static int buttonThreeStatusShortLong=0;
+  
+static void processButtons() {
+  vga.delay(75);
   if (buttonThreeStatus == 1 && buttonThreePressedTime == 0){
     buttonThreePressedTime=millis();
   }
   if (buttonThreeStatus == 1 && buttonThreePressedTime != 0){
     if (millis()-buttonThreePressedTime > 500) buttonThreeStatusShortLong=2;
   }
-  if (buttonThreeStatus == 0 && buttonThreePressedTime != 0){
-    if (millis()-buttonThreePressedTime <= 500) buttonThreeStatusShortLong=1;
-    buttonThreePressedTime=0;
-  }
-
   if (buttonThreeStatusShortLong == 1){ // ------------------------ rotation -------------------------
      //if (button_5 == 1){clock = -1;}
      if (buttonThreeStatus == 1){clock = 1;}
@@ -488,6 +464,38 @@ ICACHE_RAM_ATTR void loopTetris() {
      delBlock();
      checkBlockTranslation();
   }
+}
+
+static void newBlock() {
+     blockN = blockNext; 
+     if (noLoop == -1 ) { // -------------- only at the game beginning  -------------------------
+        drawMenu(); 
+     }
+     drawGameScreen();
+     drawScore(score);
+     blockNext = 1 + int(random(7));
+     blockDef(blockNext);
+     drawBlockNext();
+     blockDef(blockN);
+     x = 57; 
+     y = 5; 
+     noLoop = 1; 
+}
+
+ICACHE_RAM_ATTR void loopTetris() {
+  if (noLoop < 1){ // --------------- to generate new Tetraminos --------------------------------
+    newBlock();
+  }
+
+  buttonThreeStatusShortLong=0;
+  if (buttonThreeStatus == 0 && buttonThreePressedTime != 0){
+    if (millis()-buttonThreePressedTime <= 500) buttonThreeStatusShortLong=1;
+    buttonThreePressedTime=0;
+  }
+  
+  if(buttonOneStatus == 1 || buttonTwoStatus == 1 || buttonThreeStatus == 1 || buttonThreeStatusShortLong >= 1) {
+    processButtons();
+  }
   ticks++; 
   if (ticks % fast > fast - 2 || buttonThreeStatusShortLong == 2){ // --- Tetraminos falling ----------
      if (fast < 3) {fast = 2;}
@@ -496,7 +504,9 @@ ICACHE_RAM_ATTR void loopTetris() {
      replaceBlock(); 
   }
   else
-  {vga.delay(10 + 2*fast);}
+  {
+    vga.delay(50 + 2*fast);
+  }
 }
 //-----------------------------------------------------------------------------------------------
 //--------------------- This is the end of the main loop ----------------------------------------

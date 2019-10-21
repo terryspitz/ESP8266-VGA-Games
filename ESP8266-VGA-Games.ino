@@ -82,12 +82,12 @@ void vgaTone(int freq, byte time) {
    vga.noTone(); 
 }
 
-void vgaPrint(const char* str, byte x, byte y, byte color){
+void vgaPrint(const char* str, int x, int y, byte color){
    vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
    vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
 }
 
-void vgaPrintNumber(byte number, byte x, byte y, byte color){
+void vgaPrintNumber(byte number, int x, int y, byte color){
    char scoreChar[2];
    sprintf(scoreChar,"%d",number);
    vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);

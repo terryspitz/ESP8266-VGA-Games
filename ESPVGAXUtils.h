@@ -18,9 +18,12 @@ public:
   int ESPVGAX_SCALEY;
   inline void draw_line(uint8_t x0, uint8_t y0, 
                                uint8_t x1, uint8_t y1, uint8_t c) {
+    uint8_t tmp;
     if(x0==x1 && ESPVGAX_SCALEX > 1 && ESPVGAX_SCALEY > 1) {
+      if (y0 > y1) {tmp=y0; y0=y1; y1=tmp; }
       ESPVGAX::drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, ESPVGAX_SCALEX, (y1-y0)*ESPVGAX_SCALEY, c, true, ESPVGAX_OP_SET);
     } else if(y0==y1 && ESPVGAX_SCALEX > 1 && ESPVGAX_SCALEY > 1) {
+      if (x0 > x1) {tmp=x0; x0=x1; x1=tmp; }
       ESPVGAX::drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, (x1-x0)*ESPVGAX_SCALEX, ESPVGAX_SCALEY, c, true, ESPVGAX_OP_SET);
     } else {
       ESPVGAX::drawLine(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, x1*ESPVGAX_SCALEX, y1*ESPVGAX_SCALEY, c, ESPVGAX_OP_SET);

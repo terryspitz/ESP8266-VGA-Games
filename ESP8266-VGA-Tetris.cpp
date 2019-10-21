@@ -44,6 +44,11 @@ static const char str11[] PROGMEM="Arduino VGA Tetris";
 static const char str12[] PROGMEM="by Roberto Melzi"; 
 static const char str13[] PROGMEM="Game"; 
 static const char str14[] PROGMEM="Over!"; 
+static const char str15[] PROGMEM="Level"; 
+static const char str16[] PROGMEM="Score"; 
+static const char str17[] PROGMEM="Lines"; 
+static const char str18[] PROGMEM="You"; 
+static const char str19[] PROGMEM="Win!"; 
 
 static int block[4][2]={{0,0},{0,0},{0,0},{0,0}};
 static int blockExt[4][2]={{0,0},{0,0},{0,0},{0,0}};
@@ -57,6 +62,7 @@ static int x = 60;
 static int y = 6; 
 static int z = 10; 
 static int score; 
+static int lines; 
 static int noLoop = -1; 
 static int clock = 1; 
 static int delta = 0;  
@@ -71,19 +77,21 @@ static int a = 40;
 static int b = 10; 
 static int counterMenu = 0; 
 static unsigned long ticks = 0;
-static int fast = 14; //14; 
+static const int fastInit = 14;
+static int fast = fastInit; //14; 
 static int buttonThreePressedTime = 0;
 
 static void drawGameScreen();
 static void vgaTone(int freq, int ticks);
-static void gameOver();
+static void gameOver(int);
 static void checkForFullLine();
 static void drawScore(int i);
 
 void setupTetris() {
   noLoop = -1;
   score = 0;
-  fast = 14;
+  lines = 0;
+  fast = fastInit;
   ticks = 0;
 }
 
@@ -99,12 +107,20 @@ static void drawScore(int i) {
        i = 0; 
        if (fast > 5 ) {fast = fast - 3;}
        else {fast = fast - 1;}
-       if (fast < 3) {fast = 2;}
+       if (fast < 3) {gameOver(1);}
     }
+    vga.drawRect(0, 0, 150, 480, 0, true, ESPVGAX_OP_SET);
     vgaU.draw_line(20, 10, 20, 50, 3); 
-    vgaU.draw_line(20, 50, 20, 50 - i, 1); 
+    vgaU.draw_line(19, 50, 19, 50 - i, 1); 
+    vgaU.draw_line(21, 50 - (fastInit - fast)*3, 21, 50, 1); 
     vgaU.draw_line(19, 10, 22, 10, 3); 
     vgaU.draw_line(19, 50, 22, 50, 3); 
+    vgaPrint(str16, 30, 240, 1);
+    vgaPrintNumber(i, 40, 220, 1);
+    vgaPrint(str15, 100, 240, 1);
+    vgaPrintNumber(fastInit - fast, 110, 220, 1);
+    vgaPrint(str17, 50, 440, 1);
+    vgaPrintNumber(lines, 100, 440, 1);
 }
     
 static void drawBorder() {
@@ -320,28 +336,30 @@ static void replaceBlock(){
         noLoop = 0; 
         noDelete = 1; 
         if (y < 8) {
-           gameOver();
+           gameOver(0);
         }
      }
      vga.delay(1);
 }
 
-static void gameOver(){ // ------------------------------------------- Game Over ! --------------------------------------------------
+static void gameOver(int win){ // ------------------------------------------- Game Over ! --------------------------------------------------
    noLoop = -1; 
    score = 0;
-   fast = 14;
+   lines = 0;
+   fast = fastInit;
    ticks = 0; 
-   vgaPrint(str13, 92, 30, 1);
-   vgaPrint(str14, 92, 50, 1);
+   vgaPrint(win? str18 : str13, 60, 30, 1);
+   vgaPrint(win? str19 : str14, 60, 50, 1);
    vga.delay(300);
    vgaTone(660, 200); 
    vgaTone(330, 200);
    vgaTone(165, 200); 
    vgaTone(82, 200);
-   while (buttonOneStatus == 0 && buttonTwoStatus == 0 && buttonThreeStatus == 0) {
+   vga.delay(3000);
+   do {
       processInputs();
       vga.delay(200);
-   }
+   } while (buttonOneStatus == 0 && buttonTwoStatus == 0 && buttonThreeStatus == 0);
    vga.clear(0);  
 }
 
@@ -430,7 +448,8 @@ static void checkForFullLine() { // --------------------- check if the line is f
       }
    }
    if (yCounter != 0) {
-      score = score + 2*int(pow(2, yCounter));
+      score = score + yCounter*yCounter;
+      lines = lines + yCounter;
       vgaTone(990,30); 
    } 
    drawScore(score); 

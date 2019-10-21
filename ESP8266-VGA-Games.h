@@ -12,8 +12,8 @@ extern byte wheelTwoPosition;
 
 extern void processInputs();
 void vgaTone(int freq, byte time);
-extern void vgaPrint(const char* str, byte x, byte y, byte color);
-extern void vgaPrintNumber(byte number, byte x, byte y, byte color);
+extern void vgaPrint(const char* str, int x, int y, byte color);
+extern void vgaPrintNumber(byte number, int x, int y, byte color);
 
 extern void setupPong(int players);
 extern void setupBreakout();

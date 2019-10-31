@@ -58,6 +58,7 @@ static float variableFloat_2; //bomber, breakout
 static float variableFloat_1; //bomber, breakout  
 static byte padPosition; 
 static byte padPositionOld; //bombard, breakout, tetris 
+static const byte padHalfSize = 6;
 static byte ballXold;
 static byte ballYold; 
 static byte gameStep; 
@@ -109,7 +110,8 @@ static void parameterUpdate() { // Breakout
 
 static void drawLives() { // Breakout
     //vgaPrint(str10, 110, 10, 0);
-    if (lives > 0) {vgaPrintNumber(lives, 110, 10, 3);}
+    vga.drawRect(450, 100, 40, 20, 0, true, ESPVGAX_OP_SET);
+    if (lives > 0) {vgaPrintNumber(lives, 450, 100, 3);}
     if(lives == 0) {gameOverBreakout();} 
 }
 
@@ -118,7 +120,7 @@ static void gameOverBreakout() { // Breakout
   vgaTone(330, 200);
   vgaTone(165, 200); 
   vgaTone(82, 200);
-  vgaPrint(str18, 25, 40, 1);
+  vgaPrint(str18, 420, 50, 1);
   ballStart(); 
   //if (state != 1){ 
   if (state == 4){ 
@@ -148,11 +150,6 @@ static void ballStart(){ // Breakout
          ballY = 55; 
          drawBallBreakout(ballX, ballY, 2); 
       }
-      if (buttonThreeStatus == 1){ // --------------------- ritorna al menu iniziale -------------------------
-         state = 0; 
-         vga.clear(0);
-         vga.delay(300);
-      }
       vga.delay(50);
    }
 }
@@ -165,8 +162,8 @@ static void drawBorderBreakout() { // Breakout
 }
 
 static void drawPadBreakout(byte padPosition, byte color) { // Breakout
-   vgaU.draw_line(padPosition - 6, 58, padPosition + 6, 58, color);
-   vgaU.draw_line(padPosition - 6, 57, padPosition + 6, 57, color);
+   vgaU.draw_line(padPosition - padHalfSize, 58, padPosition + padHalfSize, 58, color);
+   vgaU.draw_line(padPosition - padHalfSize, 57, padPosition + padHalfSize, 57, color);
 }
 
 static void brick(byte x, byte y, byte col) { // Breakout
@@ -264,7 +261,8 @@ void hasHit() {
            }
         }
         if (ballY > 55) {
-           if (vgaU.getpixel(ballX, ballY + 1) == 1 | vgaU.getpixel(ballX + 1, ballY + 1) == 1) { //-------------- breakout ball hits the paddle ----------------------- 
+//           if (vgaU.getpixel(ballX, ballY + 1) == 1 || vgaU.getpixel(ballX + 1, ballY + 1) == 1) { //-------------- breakout ball hits the paddle ----------------------- 
+           if (ballY < 58) {
               variableFloat_1 = variableFloat_1 - 2*speedX/abs(speedX)*(padPosition - ballX); 
               if (variableFloat_1 < 20) {variableFloat_1 = 20;}
               if (variableFloat_1 > 70) {variableFloat_1 = 70;}

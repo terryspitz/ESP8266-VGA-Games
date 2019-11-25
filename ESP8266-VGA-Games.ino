@@ -53,6 +53,7 @@ byte wheelTwoPosition;
 boolean enableWheels=true;
 
 ICACHE_RAM_ATTR void processInputs() {
+#ifndef ESPVGAX_READ_INPUTS
   byte newWheelOnePosition=0;
   byte newWheelTwoPosition=0;
   if (enableWheels) {
@@ -73,6 +74,18 @@ ICACHE_RAM_ATTR void processInputs() {
   buttonThreeStatus = 1-digitalRead(BUTTON_3_PIN);
   if(buttonOneStatus == 0) wheelOnePosition=newWheelOnePosition;
   if(buttonTwoStatus == 0) wheelTwoPosition=newWheelTwoPosition;
+#else
+// Prefered: Use extended ESPVGAX:
+// Using analogRead() in loop() causes flickering.
+// Therefore it is integrated into ESPVGAX withing vga_handler() to
+// spread reading the inputs over multiple scan lines and
+// hide it after the vertical blank interval.
+  buttonOneStatus = vga.buttonOneStatus;
+  buttonTwoStatus = vga.buttonTwoStatus;
+  buttonThreeStatus = vga.buttonThreeStatus;
+  wheelOnePosition = vga.wheelOnePosition;
+  wheelTwoPosition = vga.wheelTwoPosition;
+#endif
 }
 
 //------------------------------------------- the next three voids are shared ----------------------------------------------

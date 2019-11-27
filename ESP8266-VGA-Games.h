@@ -17,11 +17,13 @@ extern void vgaPrintNumber(byte number, int x, int y, byte color);
 
 extern void setupPong(int players);
 extern void setupBreakout();
+extern void setupBomber();
 extern void setupTetris();
 extern void setupSnake();
 extern void setupDrawingToy();
 extern void loopPong();
 extern void loopBreakout();
+extern void loopBomber();
 extern void loopTetris();
 extern void loopSnake();
 extern void loopDrawingToy();

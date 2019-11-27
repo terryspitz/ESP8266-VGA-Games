@@ -123,9 +123,7 @@ ICACHE_RAM_ATTR void loop() {
   if(state == 1 || state == 0) { drawStartMenu(); } 
   if(state == 2) { loopPong(); }
   if(state == 3) { loopBreakout(); }
-/*
   if(state == 4) { loopBomber(); }
- */
   if(state == 5) { loopDrawingToy(); }
   if(state == 6) { loopTetris(); }
   if(state == 7) { loopSnake(); }
@@ -189,7 +187,7 @@ void drawStartMenu(){
       }
       if (ticPosition == 3) { // Bomber
          state = 4;
-         //setupBomber();
+         setupBomber();
       } 
       if (ticPosition == 4) { // drawing Toy 
          state = 5;

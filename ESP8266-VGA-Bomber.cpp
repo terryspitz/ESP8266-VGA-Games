@@ -37,7 +37,7 @@ static const char str511[] PROGMEM="Arduino VGA Bomber";
 static const char str515[] PROGMEM="Game Over!!!"; 
 
 //-------------------------------- variables definition Pong ----------------------------
-static byte state = 1; 
+static byte state; 
 static byte shot; // pong, bomber, breakout 
 static byte ballX; 
 static byte ballY; 
@@ -81,22 +81,24 @@ void setupBomber() { // Bomber
   variableFloat_1 = random(10)/200.; 
   lives = 0;
   buttonOneStatus = 0; 
+  beginning = 0;
+  state = 0;
 }
 
 static void drawPlaneBomber() { // --------------- draw plane ----------------------------------------------  
    if(speedT > 0 && ballX != ballX0) {
-      vgaPrint(str54, ballX0, ballY0, 0); 
-      vgaPrint(str51, ballX, ballY, 1);
+      vgaPrint(str54, ballX0 * ESPVGAX_SCALEX, ballY0 * ESPVGAX_SCALEY, 0); 
+      vgaPrint(str51, ballX  * ESPVGAX_SCALEX, ballY  * ESPVGAX_SCALEY, 1);
    }
    if(speedT < 0 && ballX != ballX0) {
-      vgaPrint(str54, ballX0, ballY0, 0); 
-      vgaPrint(str52, ballX, ballY, 1);
+      vgaPrint(str54, ballX0 * ESPVGAX_SCALEX, ballY0 * ESPVGAX_SCALEY, 0); 
+      vgaPrint(str52, ballX  * ESPVGAX_SCALEX, ballY  * ESPVGAX_SCALEY, 1);
    }
 }
 
 static void drawBombBomber() { // -------------------- draw bomb -----------------------------------------------
-   vgaPrint(str53, bomberVariableB, ballVy, 0);
-   vgaPrint(str53, bombX, byte(ballPY/100), 2);
+   vgaPrint(str53, bomberVariableB * ESPVGAX_SCALEX, ballVy * ESPVGAX_SCALEY, 0);
+   vgaPrint(str53, bombX * ESPVGAX_SCALEX, byte(ballPY/100) * ESPVGAX_SCALEY, 2);
 }
 
 static void drawBombBomberard() { // ----------------- draw bombard --------------------------------------------
@@ -125,7 +127,7 @@ static void drawShotBomber() { // --------------------- draw shot --------------
 
 static void drawScoreBomber() { // Bomber
    vgaU.draw_line(VGAX_WIDTH - (116 - 1), 1, VGAX_WIDTH - score/2 - 1, 1, 0);  
-   vga.putpixel(VGAX_WIDTH - 116, 1, (lives + 2)%3 + 1);
+   vgaU.putpixel(VGAX_WIDTH - 116, 1, (lives + 2)%3 + 1);
    vgaU.draw_line(VGAX_WIDTH - 1 , 1, VGAX_WIDTH - score/2, 1, 3);  
 }
 
@@ -228,6 +230,7 @@ void loopBomber() {
            do
            {
               processInputs(); 
+              vga.delay(100);
            } while (buttonOneStatus == 0 && buttonTwoStatus == 0 && buttonThreeStatus == 0);  
            vga.delay(100);
            vga.clear(0); 
@@ -259,5 +262,6 @@ void loopBomber() {
         state = 0; 
         vga.delay(200);
      } 
+vga.delay(50);
 }
 // ---------------------------------------- void bomber() end ---------------------------------------------

@@ -96,8 +96,19 @@ void vgaTone(int freq, byte time) {
 }
 
 void vgaPrint(const char* str, int x, int y, byte color){
-   vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
-   vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
+   if (color > 0) {
+     vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
+     vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
+   } else {
+     int w = strlen(str) * 12;
+     int h = 14;
+     y -= 4;
+     if (y<0) {
+       h -= y;
+       y = 0;
+     }
+     vga.drawRect(x, y, w, h, 0, true, ESPVGAX_OP_SET);
+   }
 }
 
 void vgaPrintNumber(byte number, int x, int y, byte color){

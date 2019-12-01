@@ -97,6 +97,7 @@ static void drawPlaneBomber() { // --------------- draw plane ------------------
 }
 
 static void drawBombBomber() { // -------------------- draw bomb -----------------------------------------------
+   if(bomberVariableB==bombX && ballVy==byte(ballPY/100)) return;
    vgaPrint(str53, bomberVariableB * ESPVGAX_SCALEX, ballVy * ESPVGAX_SCALEY, 0);
    vgaPrint(str53, bombX * ESPVGAX_SCALEX, byte(ballPY/100) * ESPVGAX_SCALEY, 2);
 }
@@ -126,6 +127,9 @@ static void drawShotBomber() { // --------------------- draw shot --------------
 }
 
 static void drawScoreBomber() { // Bomber
+   static int last_score=-1;
+   if(score==last_score) return;
+   last_score=score;
    vgaU.draw_line(VGAX_WIDTH - (116 - 1), 1, VGAX_WIDTH - score/2 - 1, 1, 0);  
    vgaU.putpixel(VGAX_WIDTH - 116, 1, (lives + 2)%3 + 1);
    vgaU.draw_line(VGAX_WIDTH - 1 , 1, VGAX_WIDTH - score/2, 1, 3);  
@@ -262,6 +266,6 @@ void loopBomber() {
         state = 0; 
         vga.delay(200);
      } 
-vga.delay(50);
+  vga.delay(50);
 }
 // ---------------------------------------- void bomber() end ---------------------------------------------

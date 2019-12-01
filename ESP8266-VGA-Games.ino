@@ -52,6 +52,8 @@ byte wheelOnePosition;
 byte wheelTwoPosition;
 boolean enableWheels=true;
 
+void drawStartMenu();
+
 ICACHE_RAM_ATTR void processInputs() {
 #ifndef ESPVGAX_READ_INPUTS
   byte newWheelOnePosition=0;

@@ -82,7 +82,10 @@ byte wheelOnePosition;
 byte wheelTwoPosition;
 bool enableWheels = true;
 
+void drawStartMenu();
+
 ICACHE_RAM_ATTR void processInputs() {
+#ifndef ESPVGAX_READ_INPUTS
   byte newWheelOnePosition = 0;
   byte newWheelTwoPosition = 0;
   if (enableWheels) {
@@ -103,6 +106,18 @@ ICACHE_RAM_ATTR void processInputs() {
   buttonThreeStatus = 1 - digitalRead(BUTTON_3_PIN);
   if (buttonOneStatus == 0) wheelOnePosition = newWheelOnePosition;
   if (buttonTwoStatus == 0) wheelTwoPosition = newWheelTwoPosition;
+#else
+// Prefered: Use extended ESPVGAX:
+// Using analogRead() in loop() causes flickering.
+// Therefore it is integrated into ESPVGAX withing vga_handler() to
+// spread reading the inputs over multiple scan lines and
+// hide it after the vertical blank interval.
+  buttonOneStatus = vga.buttonOneStatus;
+  buttonTwoStatus = vga.buttonTwoStatus;
+  buttonThreeStatus = vga.buttonThreeStatus;
+  wheelOnePosition = vga.wheelOnePosition;
+  wheelTwoPosition = vga.wheelTwoPosition;
+#endif
 }
 
 //------------------------------------------- shared functions ----------------------------------------------
@@ -185,8 +200,19 @@ void vgaTone(int freq, int time) {
 
 void vgaPrint(const char* str, int x, int y, uint8_t color) {
 #ifdef ESP8266
-  vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
-  vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
+   if (color > 0) {
+     vga.setFont((uint8_t*)fnt_arial12_data, FNT_ARIAL12_SYMBOLS_COUNT, FNT_ARIAL12_HEIGHT, FNT_ARIAL12_GLYPH_WIDTH);
+     vga.print_P(str, x, y, true, -1, color == 0 ? ESPVGAX_OP_XOR : ESPVGAX_OP_OR, true);
+   } else {
+     int w = strlen(str) * 12;
+     int h = 14;
+     y -= 4;
+     if (y<0) {
+       h -= y;
+       y = 0;
+     }
+     vga.drawRect(x, y, w, h, 0, true, ESPVGAX_OP_SET);
+   }
 #elif ESP32
   canvas.setPenColor(color_ESPVGAX_to_FabGL(color));
   canvas.drawText(x, y, str);
@@ -226,9 +252,9 @@ ICACHE_RAM_ATTR void loop() {
     if (state == 3) {
       loopBreakout();
     }
-    /*
-      if(state == 4) { loopBomber(); }
-    */
+    if(state == 4) { 
+      loopBomber(); 
+    }
     if (state == 5) {
       loopDrawingToy();
     }
@@ -298,7 +324,7 @@ void drawStartMenu() {
     }
     if (ticPosition == 3) { // Bomber
       state = 4;
-      //setupBomber();
+         setupBomber();
     }
     if (ticPosition == 4) { // drawing Toy
       state = 5;

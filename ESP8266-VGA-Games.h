@@ -11,7 +11,6 @@
   #include "Arduino.h"
   #define PROGMEM
   #define ICACHE_RAM_ATTR
-  //#define random esp_random
   #define ESPVGAX_WIDTH 512
   #define ESPVGAX_HEIGHT 480
   

@@ -12,6 +12,7 @@
 
 #include "ESP8266-VGA-Games.h"
 #include <math.h>
+
 #include "ESPVGAXUtils.h"
 static const int ESPVGAX_SCALEX=8;
 static const int ESPVGAX_SCALEY=8;
@@ -92,7 +93,7 @@ static void drawBorder() {
 
 static void drawScore() {
   vgaPrint(str23, 10, 20, 2);
-  ESPVGAX::drawRect(20, 40, 40, 20, 0, true, ESPVGAX_OP_SET);
+  vga.drawRect(20, 40, 40, 20, 0, true);
   vgaPrintNumber(score, 20, 40, 2);
 }
 

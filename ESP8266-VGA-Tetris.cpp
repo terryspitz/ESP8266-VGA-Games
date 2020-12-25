@@ -24,6 +24,7 @@
 
 #include <math.h>
 #include "ESP8266-VGA-Games.h"
+
 #include "ESPVGAXUtils.h"
 static const int ESPVGAX_SCALEX=4;
 static const int ESPVGAX_SCALEY=8;
@@ -64,7 +65,7 @@ static int z = 10;
 static int score; 
 static int lines; 
 static int noLoop = -1; 
-static int clock = 1; 
+static int clock_ = 1; 
 static int delta = 0;  
 static int color = 1; 
 static int colorOld; 
@@ -82,7 +83,6 @@ static int fast = fastInit; //14;
 static int buttonThreePressedTime = 0;
 
 static void drawGameScreen();
-static void vgaTone(int freq, int ticks);
 static void gameOver(int);
 static void checkForFullLine();
 static void drawScore(int i);
@@ -109,7 +109,7 @@ static void drawScore(int i) {
        else {fast = fast - 1;}
        if (fast < 3) {gameOver(1);}
     }
-    vga.drawRect(0, 0, 150, 480, 0, true, ESPVGAX_OP_SET);
+    vga.drawRect(0, 0, 150, 480, 0, true);
     vgaU.draw_line(20, 10, 20, 50, 3); 
     vgaU.draw_line(19, 50, 19, 50 - i, 1); 
     vgaU.draw_line(21, 50 - (fastInit - fast)*3, 21, 50, 1); 
@@ -246,7 +246,7 @@ static void blockExtension() {
    }
 }
  
-static void blockRotation(int clock){
+static void blockRotation(int clock_){
   for (int i = 0; i < 4; i++){
      blockOld[0][0] = block[0][0];
      blockOld[0][1] = block[0][1];
@@ -258,14 +258,14 @@ static void blockRotation(int clock){
      blockOld[3][1] = block[3][1];
   }
   for (int i = 0; i < 4; i++){
-     block[0][0] = blockOld[0][1]*clock;
-     block[0][1] = -blockOld[0][0]*clock;
-     block[1][0] = blockOld[1][1]*clock;
-     block[1][1] = -blockOld[1][0]*clock;
-     block[2][0] = blockOld[2][1]*clock;
-     block[2][1] = -blockOld[2][0]*clock;
-     block[3][0] = blockOld[3][1]*clock;
-     block[3][1] = -blockOld[3][0]*clock;
+     block[0][0] = blockOld[0][1]*clock_;
+     block[0][1] = -blockOld[0][0]*clock_;
+     block[1][0] = blockOld[1][1]*clock_;
+     block[1][1] = -blockOld[1][0]*clock_;
+     block[2][0] = blockOld[2][1]*clock_;
+     block[2][1] = -blockOld[2][0]*clock_;
+     block[3][0] = blockOld[3][1]*clock_;
+     block[3][1] = -blockOld[3][0]*clock_;
   }
 }
 static void blockTranslation(int x, int y) {
@@ -405,8 +405,8 @@ static void checkBlockRotation(){
      }
      else
      {
-        clock = -clock; 
-        blockRotation(clock); 
+        clock_ = -clock_; 
+        blockRotation(clock_); 
         blockExtension(); 
         blockTranslation(x, y); 
         drawBlock(); 
@@ -471,10 +471,10 @@ static void processButtons() {
     if (millis()-buttonThreePressedTime > 500) buttonThreeStatusShortLong=2;
   }
   if (buttonThreeStatusShortLong == 1){ // ------------------------ rotation -------------------------
-     //if (button_5 == 1){clock = -1;}
-     if (buttonThreeStatus == 1){clock = 1;}
+     //if (button_5 == 1){clock_ = -1;}
+     if (buttonThreeStatus == 1){clock_ = 1;}
      delBlock();
-     blockRotation(clock); 
+     blockRotation(clock_); 
      checkBlockRotation(); 
   }
   if (buttonOneStatus == 1 || buttonTwoStatus == 1){ // ------- translation ----------------------
@@ -530,9 +530,3 @@ ICACHE_RAM_ATTR void loopTetris() {
 //-----------------------------------------------------------------------------------------------
 //--------------------- This is the end of the main loop ----------------------------------------
 //-----------------------------------------------------------------------------------------------
-
-static void vgaTone(int freq, int ticks){
-   vga.tone(freq);
-   vga.delay(ticks); 
-   vga.noTone(); 
-}

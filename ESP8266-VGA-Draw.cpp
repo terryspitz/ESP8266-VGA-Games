@@ -20,12 +20,14 @@
 
 #include <math.h>
 #include "ESP8266-VGA-Games.h"
+
 #include "ESPVGAXUtils.h"
 static const int ESPVGAX_SCALEX=4;
 static const int ESPVGAX_SCALEY=4;
 static const int VGAX_WIDTH=(ESPVGAX_WIDTH/4);
 static const int VGAX_HEIGHT=(ESPVGAX_HEIGHT/4);
 static ESPVGAXUtils vgaU(ESPVGAX_SCALEX,ESPVGAX_SCALEY);
+
 
 static byte ballX; 
 static byte ballY; 

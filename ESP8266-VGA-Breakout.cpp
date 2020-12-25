@@ -62,7 +62,7 @@ static const byte padHalfSize = 6;
 static byte ballXold;
 static byte ballYold; 
 static byte gameStep; 
-static boolean cancelSafe; 
+static bool cancelSafe; 
 static byte hitScore; 
 static byte lives = 8; //---------- qui lascio lives = 8 per pong. E' definito anche in fondo a parameterPongIni() ----------------
 static byte ballX0;
@@ -110,7 +110,7 @@ static void parameterUpdate() { // Breakout
 
 static void drawLives() { // Breakout
     //vgaPrint(str10, 110, 10, 0);
-    vga.drawRect(450, 100, 40, 20, 0, true, ESPVGAX_OP_SET);
+    vga.drawRect(450, 100, 40, 20, 0, true);
     if (lives > 0) {vgaPrintNumber(lives, 450, 100, 3);}
     if(lives == 0) {gameOverBreakout();} 
 }

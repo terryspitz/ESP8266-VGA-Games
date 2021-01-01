@@ -1,40 +1,39 @@
 /*******************************************************************
    ESP8266 Pong - Version Beta - December the 28th 2018
-*                                                                  *
+
    ESP8266 Pong is a game for VGA monitors, written by
    Roberto Melzi, running for Arduino IDE version 1.8.1, and
    based on the ESPVGAX library written By
    Sandro Maffiodo aka Smaffer.
-*                                                                  *
+
    https://github.com/smaffer/espvgax
-*                                                                  *
+
    For more projects, see on Instructables:
    http://www.instructables.com/member/Rob%20Cai/instructables/
-*                                                                  *
+
+   ESP32 port by terryspitz, Xmas 2020
+   Inspired by https://upload.wikimedia.org/wikipedia/commons/2/26/Pong.svg
+
 *******************************************************************/
 
 #include "ESP8266-VGA-Games.h"
 
-static const int Horiz_Resolution = 480;
-static const int Vert_Resolution = 512;
-static const int Pad_Length = 48 * 2;
+static const int Pad_Length = 40 * 2;
 static const int waitCycles = 34 * 2;
-static const int radius = 6;
+static const int radius = 5;
+static const int left_pad_x = 1;
+static const int right_pad_x = (ESPVGAX_WIDTH - 1) - 2 * radius;
 
-static int vgaWidth = ESPVGAX_WIDTH - 16;
-static int vgaHeight = ESPVGAX_HEIGHT;
 static float ballStatus = 1;
 static int deltaX = 4;
 static int deltaY = 3;
-static int cx = vgaWidth / 2;
-static int cy = vgaHeight / 2;
+static int cx = ESPVGAX_WIDTH / 2;
+static int cy = 0;
 static int cx0 = cx;
 static int cy0 = cy;
 static int angle;
 static byte scoreL;
 static byte scoreR;
-//static char bufferL[8];
-//static char bufferR[8];
 static int potOnePosition;
 static int potTwoPosition;
 static int potOnePositionOld;
@@ -42,8 +41,8 @@ static int potTwoPositionOld;
 static int players;
 
 static void gameOver();
-static void processInputsPong ();
-static void DrawPad(int xPos, int potPosition, bool myColor);
+static void processInputsPong();
+static void drawPad(int xPos, int potPosition, bool myColor);
 static void drawBall(int cx, int cy, byte myColor);
 static void ballPosition();
 static void ballIni();
@@ -51,11 +50,11 @@ static void printScore();
 
 void setupPong(int players_) {
   players = players_;
-  vga.drawRect(0, 0, ESPVGAX_WIDTH - 16, ESPVGAX_HEIGHT - 1, 1);
-  vgaPrint("Pong", 200, 200, 1);
-  processInputsPong ();
-  DrawPad(1, potOnePosition, 1);
-  DrawPad(vgaWidth - 2 * radius, potTwoPosition, 1);
+  vga.clear(0);
+  vgaPrint("Pong", ESPVGAX_WIDTH/2, ESPVGAX_HEIGHT/2, 1);
+  processInputsPong();
+  drawPad(left_pad_x, potOnePosition, 1);
+  drawPad(right_pad_x, potTwoPosition, 1);
   potOnePositionOld = potOnePosition;
   potTwoPositionOld = potTwoPosition;
 }
@@ -68,21 +67,24 @@ ICACHE_RAM_ATTR void loopPong() {
     drawBall(cx, cy, 1);
   }
   if (potOnePosition != potOnePositionOld ) {
-    DrawPad(1, potOnePositionOld, 0);
-    vga.delay(2);
-    DrawPad(1, potOnePosition, 1);
+    drawPad(left_pad_x, potOnePositionOld, 0);
+    //vga.delay(2);
+    drawPad(left_pad_x, potOnePosition, 1);
     potOnePositionOld = potOnePosition;
   }
   if (potTwoPosition != potTwoPositionOld ) {
-    DrawPad(vgaWidth - 2 * radius, potTwoPositionOld, 0);
-    vga.delay(2);
-    DrawPad(vgaWidth - 2 * radius, potTwoPosition, 1);
+    drawPad(right_pad_x, potTwoPositionOld, 0);
+    //vga.delay(2);
+    drawPad(right_pad_x, potTwoPosition, 1);
     potTwoPositionOld = potTwoPosition;
   }
   ballPosition();
   if (buttonOneStatus && (ballStatus > 0)) {
+    vga.clear(0);
     ballIni();
     ballStatus = 0;
+    drawPad(left_pad_x, potOnePosition, 1);
+    drawPad(right_pad_x, potTwoPosition, 1);
   }
   vga.delay(waitCycles);
   if (!(cx == cx0 && cy == cy0)) {
@@ -91,26 +93,43 @@ ICACHE_RAM_ATTR void loopPong() {
 }
 //_______________________________________________________________________________________________________
 //_______________________________________________________________________________________________________
+/* My board has one joystick and two buttons.
+ * In Pong i use the two buttons for left player and joystick for right player.
+ */
+#define JOYSTICK 1
+#ifdef JOYSTICK
+#define BUTTON_1_PIN D3
+#define BUTTON_2_PIN D4
+#endif
 
 static ICACHE_RAM_ATTR void processInputsPong () {
-  int potOne = wheelOnePosition * 8;
-  int potTwo = wheelTwoPosition * 8;
-
-  potOnePosition = map(potOne, 40, 980, Pad_Length / 2, 512 - Pad_Length / 2);
-  potOnePosition = constrain(potOnePosition, Pad_Length / 2 + 1, ESPVGAX_HEIGHT - Pad_Length / 2 - 1);
-  potTwoPosition = map(potTwo, 40, 980, Pad_Length / 2, 512 - Pad_Length / 2);
-  potTwoPosition = constrain(potTwoPosition, Pad_Length / 2 + 1, ESPVGAX_HEIGHT - Pad_Length / 2 - 1);
-  if (players == 1) potTwoPosition = potOnePosition;
+#ifdef JOYSTICK
+  if (players == 1) {
+    potOnePosition = map(wheelOnePosition, 0, 128, Pad_Length / 2, ESPVGAX_HEIGHT - Pad_Length / 2);
+    potTwoPosition = potOnePosition;
+  }
+  else {
+    potOnePosition = constrain(potOnePosition - buttonOneStatus*8 + buttonTwoStatus*8, Pad_Length / 2, ESPVGAX_HEIGHT - Pad_Length / 2);
+    potTwoPosition = map(wheelOnePosition, 0, 128, Pad_Length / 2, ESPVGAX_HEIGHT - Pad_Length / 2);
+  }
+#else
+  potOnePosition = map(wheelOnePosition, 0, 128, Pad_Length / 2, ESPVGAX_HEIGHT - Pad_Length / 2);
+  if (players == 1)
+    potTwoPosition = potOnePosition;
+  else
+    potTwoPosition = map(wheelTwoPosition, 0, 128, Pad_Length / 2, ESPVGAX_HEIGHT - Pad_Length / 2);
+#endif
 }
 
 //_______________________________________________________________________________________________________
 static void drawBall(int cx, int cy, byte myColor) {
-  vga.drawCircle(cx, cy, radius, myColor, true);
+  //vga.drawCircle(cx, cy, radius, myColor, true);                                //not very retro :(
+  vga.drawRect(cx - radius/2, cy - radius/2, 2*radius, 2*radius, myColor, true);  //that's better!
 }
 
 //_______________________________________________________________________________________________________
-static void DrawPad(int xPos, int potPosition, bool myColor) {
-  vga.drawRect(xPos, potPosition - Pad_Length / 2, 2 * radius, Pad_Length, myColor, true);
+static void drawPad(int xPos, int potPosition, bool color) {
+  vga.drawRect(xPos, potPosition - Pad_Length / 2, 2 * radius, Pad_Length, color, true);
 }
 
 //_______________________________________________________________________________________________________
@@ -119,16 +138,19 @@ static void ballPosition() {
   cy0 = cy;
   cx = cx + deltaX;
   cy = cy + deltaY;
-  if ((cx > vgaWidth - 3 * radius / 2 - 8) && (cy > potTwoPosition - Pad_Length / 2) && (cy < potTwoPosition + Pad_Length / 2)) {
+  //hit right paddle
+  if ((cx > right_pad_x - radius - 2) && (cy > potTwoPosition - Pad_Length / 2) && (cy < potTwoPosition + Pad_Length / 2)) {
     cx = cx - 2 * deltaX;
     deltaX = - deltaX;
     deltaY += int((potTwoPosition - cy0) / 4);
   }
+  //hit left paddle
   if ((cx < 8 + 3 * radius / 2) && (cy > potOnePosition - Pad_Length / 2) && (cy < potOnePosition + Pad_Length / 2)) {
     cx = cx - 2 * deltaX;
     deltaX = - deltaX;
     deltaY += int((potOnePosition - cy0) / 4);
   }
+  //hit left wall
   if (cx < 4 + radius / 2) {
     ballStatus = 1;
     scoreR += 1;
@@ -136,7 +158,8 @@ static void ballPosition() {
     deltaX = 0;
     deltaY = 0;
   }
-  if (cx > vgaWidth - radius / 2 - 2) {
+  //hit right wall
+  if (cx > ESPVGAX_WIDTH - radius / 2 - 2) {
     ballStatus = 2;
     scoreL += 1;
     printScore();
@@ -144,17 +167,17 @@ static void ballPosition() {
     deltaY = 0;
   }
   if (ballStatus == 1) {
-    cx = 3 * radius + 1;
+    cx = left_pad_x + 3 * radius;
     cy = potOnePosition;
   }
   if (ballStatus == 2) {
-    cx = vgaWidth - 3 * radius;
+    cx = (right_pad_x - 2) - radius;
     cy = potTwoPosition;
   }
-  if ((scoreL > 9) | (scoreR > 9)) {
+  if ((scoreL > 9) || (scoreR > 9)) {
     gameOver();
   }
-  if ((cy > vgaHeight - radius / 2 - 4) | (cy < 3 + radius / 2)) {
+  if ((cy > ESPVGAX_HEIGHT - radius / 2 - 4) | (cy < 3 + radius / 2)) {
     cy = cy - 2 * deltaY;
     deltaY = - deltaY;
   }
@@ -179,12 +202,9 @@ static void ballIni() {
 
 //_______________________________________________________________________________________________________
 static void printScore() {
-  //  dtostrf(scoreL, 4, 0, bufferL);
-  //  dtostrf(scoreR, 4, 0, bufferR);
-  vgaPrint("Left = ", 200, 200);
-  vgaPrint(String(scoreL).c_str(), 232, 200);
-  vgaPrint("   Right = ", 250, 200);
-  vgaPrint(String(scoreR).c_str(), 300, 200);
+  String score = "Left " + String(scoreL) + "   Right " + String(scoreR);
+  vgaPrint(score.c_str(), (ESPVGAX_WIDTH - ESPVGAX_WIDTH/40 * score.length()) / 2, ESPVGAX_HEIGHT/2 - 20, 1);
+  vga.delay(2000);
 }
 
 //_______________________________________________________________________________________________________
@@ -195,5 +215,5 @@ static void gameOver() {
   vga.drawRect(0, 0, ESPVGAX_WIDTH - 16, ESPVGAX_HEIGHT - 1, 1);
   scoreL = 0;
   scoreR = 0;
-  vgaPrint(" Game Over ", 200, 200);
+  vgaPrint(" Game Over ", (ESPVGAX_WIDTH - ESPVGAX_WIDTH/40 * 10) / 2, ESPVGAX_HEIGHT/2 - 20, 0);
 }

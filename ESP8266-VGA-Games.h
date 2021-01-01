@@ -12,7 +12,7 @@
   #define PROGMEM
   #define ICACHE_RAM_ATTR
   #define ESPVGAX_WIDTH 512
-  #define ESPVGAX_HEIGHT 480
+  #define ESPVGAX_HEIGHT 448  //ESP8266 is 512x480 but this is the closest size supported by FabGL
   
   class VGAAdapter {
     public:
@@ -38,8 +38,8 @@ extern byte wheelTwoPosition;
 
 extern void processInputs();
 void vgaTone(int freq, int time);
-extern void vgaPrint(const char* str, int x, int y, byte color=0);
-extern void vgaPrintNumber(byte number, int x, int y, byte color=0);
+extern void vgaPrint(const char* str, int x, int y, byte color=3);
+extern void vgaPrintNumber(byte number, int x, int y, byte color=3);
 
 extern void setupPong(int players);
 extern void setupBreakout();

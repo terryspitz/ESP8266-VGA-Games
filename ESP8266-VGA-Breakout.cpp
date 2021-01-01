@@ -21,6 +21,7 @@
 #include <math.h>
 #include "ESP8266-VGA-Games.h"
 #include "ESPVGAXUtils.h"
+
 static const int ESPVGAX_SCALEX=4;
 static const int ESPVGAX_SCALEY=4;
 static ESPVGAXUtils vgaU(ESPVGAX_SCALEX,ESPVGAX_SCALEY);
@@ -82,7 +83,7 @@ void setupBreakout() {
   gameIniBreakout();
 }
 
-static void gameIniBreakout(){ // Breakout
+static void gameIniBreakout(){
   ballPX = 70.;
   ballPY = 3000;
   cancelSafe = 0;
@@ -102,20 +103,20 @@ static void gameIniBreakout(){ // Breakout
   drawBricksGrid(gameStep); 
 }
 
-static void parameterUpdate() { // Breakout
+static void parameterUpdate() {
   variableFloat_2 = variableFloat_1/180.* pi; 
   if (speedX > 0) {speedX = int(sin(variableFloat_2)*speedT);} else {speedX = int(-sin(variableFloat_2)*speedT);} 
   if (speedY > 0) {speedY = int(cos(variableFloat_2)*speedT);} else {speedY = int(-cos(variableFloat_2)*speedT);} 
 }
 
-static void drawLives() { // Breakout
+static void drawLives() {
     //vgaPrint(str10, 110, 10, 0);
     vga.drawRect(450, 100, 40, 20, 0, true);
     if (lives > 0) {vgaPrintNumber(lives, 450, 100, 3);}
     if(lives == 0) {gameOverBreakout();} 
 }
 
-static void gameOverBreakout() { // Breakout
+static void gameOverBreakout() {
   vgaTone(660, 200); 
   vgaTone(330, 200);
   vgaTone(165, 200); 
@@ -130,7 +131,7 @@ static void gameOverBreakout() { // Breakout
   vga.delay(300);
 }
 
-static void ballStart(){ // Breakout
+static void ballStart(){
    ballPX = padPosition; 
    ballPY = 5500; 
    ballCoordinatesBreakout(); 
@@ -139,7 +140,7 @@ static void ballStart(){ // Breakout
    while (buttonOneStatus == 0 && state == 4){
       padPositionOld = padPosition; 
       processInputs();
-      padPosition = map(wheelOnePosition, 127, 0, 7, 93); 
+      padPosition = map(wheelOnePosition, 0, 127, 7, 93); 
       if (padPosition != padPositionOld){
          drawPadBreakout(padPositionOld, 0); 
          drawPadBreakout(padPosition, 1);
@@ -154,26 +155,26 @@ static void ballStart(){ // Breakout
    }
 }
 
-static void drawBorderBreakout() { // Breakout 
+static void drawBorderBreakout() {
    vgaU.draw_line(0, 0, 0, 59, 3);
    vgaU.draw_line(0, 0, 99, 0, 3);
    vgaU.draw_line(0, 59, 99, 59, 3);
    vgaU.draw_line(99, 0, 99, 60, 3);
 }
 
-static void drawPadBreakout(byte padPosition, byte color) { // Breakout
+static void drawPadBreakout(byte padPosition, byte color) {
    vgaU.draw_line(padPosition - padHalfSize, 58, padPosition + padHalfSize, 58, color);
    vgaU.draw_line(padPosition - padHalfSize, 57, padPosition + padHalfSize, 57, color);
 }
 
-static void brick(byte x, byte y, byte col) { // Breakout
+static void brick(byte x, byte y, byte col) {
    vgaU.draw_line(x - 5, y + 1, x + 5, y + 1 , col);
    vgaU.draw_line(x - 5, y - 1, x + 5, y - 1 , col);
    vgaU.putpixel(x - 5, y, col); 
    vgaU.putpixel(x + 4, y, col); 
 }
 
-static void drawBricksGrid(int n) { // Breakout
+static void drawBricksGrid(int n) {
   nBricks = 0; 
   if (n%3 == 0) {   
     for (int i = 1; i <= int(100/13 - 1); i++) {
@@ -204,7 +205,7 @@ static void drawBricksGrid(int n) { // Breakout
   }
 }
 
-static void searchHitBrick(int bX, int bY) { // Breakout
+static void searchHitBrick(int bX, int bY) {
    ballX0 = 120;
    ballY0 = 60;
    for (int i = 0; i <= int(100/13); i++) {
@@ -224,14 +225,14 @@ static void searchHitBrick(int bX, int bY) { // Breakout
    if (nBricks == 0){nextlivesBreakout();}
 }
 
-static void drawBallBreakout(byte x, byte y, byte col) { // Breakout
+static void drawBallBreakout(byte x, byte y, byte col) {
    vgaU.putpixel(x, y, col); 
    vgaU.putpixel(x + 1, y, col); 
    vgaU.putpixel(x, y + 1, col); 
    vgaU.putpixel(x + 1, y + 1, col);
 }
 
-static void ballCoordinatesBreakout() { // Breakout
+static void ballCoordinatesBreakout() {
   ballXold = ballX; 
   ballYold = ballY; 
   ballPX += float(speedX/1000.);
@@ -240,7 +241,7 @@ static void ballCoordinatesBreakout() { // Breakout
   ballY = byte(ballPY/100); 
 }
 
-static void nextlivesBreakout() { // Breakout
+static void nextlivesBreakout() {
   gameStep++; 
   speedT = speedIncrement*speedT; 
   drawBricksGrid(gameStep); 
@@ -293,14 +294,14 @@ void hasHit() {
 ICACHE_RAM_ATTR void loopBreakout(){
   if (beginning == 0){ 
      padPositionOld = padPosition; 
-     padPosition = map(wheelOnePosition, 127, 0, 7, 93); 
+     padPosition = map(wheelOnePosition, 0, 127, 7, 93); 
      gameIniBreakout(); 
      ballStart(); 
      beginning = 1; 
   }
   padPositionOld = padPosition; 
   //buttonOneStatus = 1; // for debugging ----------------------
-  padPosition = map(wheelOnePosition, 127, 0, 7, 93); 
+  padPosition = map(wheelOnePosition, 0, 127, 7, 93); 
 
   if (padPosition != padPositionOld) {
      drawPadBreakout(padPositionOld, 0); 
@@ -314,6 +315,11 @@ ICACHE_RAM_ATTR void loopBreakout(){
         drawBallBreakout(ballXold, ballYold, 0); 
         cancelSafe = 1; 
      }
+     Serial.println(String(vgaU.getpixel(ballX, ballY)) + " " +
+                    String(vgaU.getpixel(ballX+1, ballY)) + " " +
+                    String(vgaU.getpixel(ballX, ballY+1)) + " " +
+                    String(vgaU.getpixel(ballX+1, ballY+1)));
+
      if (vgaU.getpixel(ballX, ballY) != 0) {hitScore += 1;}
      if (vgaU.getpixel(ballX + 1, ballY) != 0) {hitScore += 2;}
      if (vgaU.getpixel(ballX, ballY + 1) != 0) {hitScore += 4;}
@@ -329,4 +335,3 @@ ICACHE_RAM_ATTR void loopBreakout(){
    }
    vga.delay(2);
 }
-// ---------------------------------------- void breakout() end ---------------------------------------------

@@ -19,10 +19,10 @@ public:
     uint8_t tmp;
     if(x0==x1 && ESPVGAX_SCALEX > 1 && ESPVGAX_SCALEY > 1) {
       if (y0 > y1) {tmp=y0; y0=y1; y1=tmp; }
-      vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, ESPVGAX_SCALEX, (y1-y0)*ESPVGAX_SCALEY, c, true);
+      vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, ESPVGAX_SCALEX-1, (y1-y0)*ESPVGAX_SCALEY-1, c, true);
     } else if(y0==y1 && ESPVGAX_SCALEX > 1 && ESPVGAX_SCALEY > 1) {
       if (x0 > x1) {tmp=x0; x0=x1; x1=tmp; }
-      vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, (x1-x0)*ESPVGAX_SCALEX, ESPVGAX_SCALEY, c, true);
+      vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, (x1-x0)*ESPVGAX_SCALEX-1, ESPVGAX_SCALEY-1, c, true);
     } else {
       vga.drawLine(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, x1*ESPVGAX_SCALEX, y1*ESPVGAX_SCALEY, c);
     }
@@ -33,7 +33,7 @@ public:
   }
   inline void draw_rect(uint8_t x0, uint8_t y0, uint8_t w, uint8_t h, 
                                uint8_t c, char fc) {
-    vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, w*ESPVGAX_SCALEX, h*ESPVGAX_SCALEY, c, false);
+    vga.drawRect(x0*ESPVGAX_SCALEX, y0*ESPVGAX_SCALEY, w*ESPVGAX_SCALEX-1, h*ESPVGAX_SCALEY-1, c, false);
   }
   inline void draw_row(uint8_t line, uint8_t x0, uint8_t x1, uint8_t c) {
     draw_line(x0, line, x1, line, c);
@@ -42,10 +42,10 @@ public:
     draw_line(row, y0, row, y1, c);
   }
   inline uint8_t getpixel(uint8_t x, uint8_t y) {
-    return vga.getpixel(x*ESPVGAX_SCALEX+1, y*ESPVGAX_SCALEY+1);
+    return vga.getpixel(x*ESPVGAX_SCALEX, y*ESPVGAX_SCALEY);
   }
   inline uint8_t putpixel(uint8_t x, uint8_t y, uint8_t c) {
-    vga.drawRect(x*ESPVGAX_SCALEX, y*ESPVGAX_SCALEY, ESPVGAX_SCALEX, ESPVGAX_SCALEY, c, true);
+    vga.drawRect(x*ESPVGAX_SCALEX, y*ESPVGAX_SCALEY, ESPVGAX_SCALEX-1, ESPVGAX_SCALEY-1, c, true);
   }
 };
 
